@@ -93,13 +93,33 @@ Worth recording, because it explains the layout:
   kept in sync by hand. The symlink approach in `install.sh` removes that
   duplication — both tools now read the same files.
 
+## Validation
+
+All 69 skills parse as valid YAML frontmatter and declare both `name` and
+`description`, checked with a real YAML parser rather than a regex:
+
+```bash
+python3 -m venv /tmp/v && /tmp/v/bin/pip install -q pyyaml
+/tmp/v/bin/python tools/validate.py
+```
+
 ## Known issues
 
-Carried over as-is from the live setup; recorded here rather than silently fixed.
+Recorded rather than silently fixed, except where noted.
 
-- **Name collision.** `skills/implement-figma/SKILL.md` and
-  `skills/figma-implement-design/SKILL.md` both declare
-  `name: figma-implement-design`. Two directories, one skill name.
+- **Name collision — fixed.** `skills/implement-figma/` used to declare
+  `name: figma-implement-design`, the same name as `skills/figma-implement-design/`.
+  Two directories, one name, so one shadowed the other. Its declared name now
+  matches its directory.
+- **These two figma skills are still near-duplicates**, and only one is
+  complete. `figma-implement-design/` carries the assets, `LICENSE.txt` and the
+  Codex MCP setup steps; `implement-figma/` is a SKILL.md-only excerpt of the
+  same guidance. Worth deleting one — I left the call to you.
+- **`implement-figma` has four dead links.** Its "Skill Boundaries" section
+  tells the agent to switch to `figma-use`, `figma-generate-design`,
+  `figma-code-connect-components` or `figma-create-design-system-rules`. None of
+  those exist here, so that guidance is unfollowable. Fixing it means editing
+  the skill's instructions, which is the same decision as the point above.
 - **Near-duplicates** among the vendored skills, all upstream from
   `mattpocock/skills`: `code-review` / `review` have identical descriptions;
   `diagnose` / `diagnosing-bugs`; `grilling` / `grill-me` / `grill-with-docs`;
