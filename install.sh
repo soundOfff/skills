@@ -62,9 +62,14 @@ skill_sources() {
   done
 }
 
-# link <name> <src> <dest_dir>
+# link <name> <src> <dest_dir> <backup_label>
+#
+# backup_label namespaces the backup directory. It cannot be derived from
+# destdir, because ~/.claude/skills and ~/.codex/skills share the basename
+# "skills" — deriving it would make the second destination's backup nest inside
+# the first one's.
 link_one() {
-  local name="$1" src="$2" destdir="$3" dest="$destdir/$1"
+  local name="$1" src="$2" destdir="$3" blabel="$4" dest="$destdir/$1"
 
   # Already pointing where we want it: nothing to do.
   if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
@@ -83,16 +88,16 @@ link_one() {
     rm "$dest"
   elif [ -e "$dest" ]; then
     # Real files. Preserve them before we take over the path.
-    mkdir -p "$BACKUP/$(basename "$destdir")"
-    mv "$dest" "$BACKUP/$(basename "$destdir")/$name"
-    say "  backed up $name -> ${BACKUP#"$REPO"/}/$(basename "$destdir")/$name"
+    mkdir -p "$BACKUP/$blabel"
+    mv "$dest" "$BACKUP/$blabel/$name"
+    say "  backed up $name -> ${BACKUP#"$REPO"/}/$blabel/$name"
   fi
 
   ln -s "$src" "$dest"
 }
 
 install_into() {
-  local destdir="$1" filter="$2" label="$3"
+  local destdir="$1" filter="$2" label="$3" blabel="$4"
   step "$label -> $destdir"
   mkdir -p "$destdir"
 
@@ -101,7 +106,7 @@ install_into() {
     if [ "$filter" = "subset" ] && ! grep -qxF "$name" "$REPO/codex-skills.txt"; then
       continue
     fi
-    link_one "$name" "$src" "$destdir"
+    link_one "$name" "$src" "$destdir" "$blabel"
     n=$((n + 1))
   done < <(skill_sources)
   say "  $n skill(s) linked"
@@ -110,14 +115,14 @@ install_into() {
 [ $DRY -eq 1 ] && say "DRY RUN — nothing will be changed"
 
 if [ $DO_CLAUDE -eq 1 ]; then
-  install_into "$CLAUDE_SKILLS" all "Claude Code"
+  install_into "$CLAUDE_SKILLS" all "Claude Code" claude-skills
 fi
 
 if [ $DO_CODEX -eq 1 ]; then
   if [ $ALL_CODEX -eq 1 ]; then
-    install_into "$CODEX_SKILLS" all "Codex (all skills)"
+    install_into "$CODEX_SKILLS" all "Codex (all skills)" codex-skills
   else
-    install_into "$CODEX_SKILLS" subset "Codex (codex-skills.txt subset)"
+    install_into "$CODEX_SKILLS" subset "Codex (codex-skills.txt subset)" codex-skills
   fi
 fi
 
