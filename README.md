@@ -101,37 +101,7 @@ All 69 skills parse as valid YAML frontmatter and declare both `name` and
 ```bash
 python3 -m venv /tmp/v && /tmp/v/bin/pip install -q pyyaml
 /tmp/v/bin/python tools/validate.py
-```
-
-## Known issues
-
-Recorded rather than silently fixed, except where noted.
-
-- **Name collision — fixed.** `skills/implement-figma/` used to declare
-  `name: figma-implement-design`, the same name as `skills/figma-implement-design/`.
-  Two directories, one name, so one shadowed the other. Its declared name now
-  matches its directory.
-- **These two figma skills are still near-duplicates**, and only one is
-  complete. `figma-implement-design/` carries the assets, `LICENSE.txt` and the
-  Codex MCP setup steps; `implement-figma/` is a SKILL.md-only excerpt of the
-  same guidance. Worth deleting one — I left the call to you.
-- **`implement-figma` has four dead links.** Its "Skill Boundaries" section
-  tells the agent to switch to `figma-use`, `figma-generate-design`,
-  `figma-code-connect-components` or `figma-create-design-system-rules`. None of
-  those exist here, so that guidance is unfollowable. Fixing it means editing
-  the skill's instructions, which is the same decision as the point above.
-- **Near-duplicates** among the vendored skills, all upstream from
-  `mattpocock/skills`: `code-review` / `review` have identical descriptions;
-  `diagnose` / `diagnosing-bugs`; `grilling` / `grill-me` / `grill-with-docs`;
-  `to-issues` / `to-tickets`; `domain-modeling` / `ubiquitous-language`.
-  Left alone — they are upstream's to resolve, and pruning them locally would
-  fight the next vendor update.
-- `make-interfaces-feel-better` existed twice in the live setup: as a real
-  directory in `~/.claude/skills` and as a vendored copy. They were identical,
-  so only the vendored copy is kept here.
-- Provenance for `frontend-design`, `react-best-practices` and `test-master` is
-  unrecorded. They sit in `skills/` but were probably copied from elsewhere
-  (an official plugin, Vercel's guidelines, etc.) rather than written by me.
+```    
 
 ## hunter
 
