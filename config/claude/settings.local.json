@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mdfind -name \"mint mobile\")",
+      "Bash(mdfind \"kMDItemTextContent == '*mint*mobile*'c\")",
+      "Bash(textutil -convert txt /Users/User/Downloads/Tomas_Brasca_-_Software_Engineer.docx -stdout)",
+      "Bash(unzip -l \"/Users/User/Downloads/drive-download-20260702T151308Z-3-001.zip\")",
+      "Bash(mdfind -name \"mintmobile\" kind:pdf)",
+      "Bash(mdfind \"mintmobile OR \\\\\"mint mobile\\\\\"\" -onlyin /Users/User)",
+      "Bash(grep -E \"\\\\.\\(pdf|doc|docx|txt|eml\\)$\")",
+      "Bash(xargs -I {} sh -c 'unzip -l \"{}\" 2>/dev/null | grep -i \"mint\" && echo \"=== Found in: {} ===\"')",
+      "mcp__claude_ai_Google_Drive__search_files",
+      "mcp__claude_ai_Gmail__search_threads",
+      "Bash(echo \"---exit: $?\")",
+      "Bash(aws configure list-profiles *)"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+# Backups created by install.sh when it displaces real files
+.install-backup/
+
+# hunter audit run artifacts (regenerated per run)
+.hunter/
+
+.DS_Store
