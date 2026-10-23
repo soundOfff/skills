@@ -37,7 +37,7 @@ Read only. Change nothing. When `<flow>/setup.json` exists, it holds the answers
 | `sources` | The sources table below. Each value is `none` or the repository-relative paths that exist. |
 | `ready_label` | The tracker's labels: `gh label list`, `glab label list`, the Linear MCP server's `list_issue_labels`, or the `Labels:` lines under `.scratch/`. When an existing label clearly means ready for an agent to build, such as `agent-ready`, recommend it. Otherwise `ready-for-agent`. |
 
-Also read the existing `AGENTS.md` and whether it has a flow block, `CLAUDE.md` and whether it imports `@AGENTS.md`, whether either is a link and to what, `docs/agents/`, any pull request template, and `.gitignore`. For GitHub, check for a project board with `gh project list --owner <owner>`. A missing token scope is not a blocker. Note it and move on.
+Also read the existing `AGENTS.md` and whether it has a flow block, `CLAUDE.md` and whether it imports `@AGENTS.md`, whether either is a link and to what, `docs/agents/`, any pull request template, and `.gitignore`. For GitHub, check for a project board with `gh project list --owner <owner>`. A missing token scope is not a blocker. Note it and move on. Also note whether the repository has a user interface: a frontend framework or UI library in its manifests, stylesheets or a Tailwind config, a components folder, or native UI code such as SwiftUI, UIKit, or Android views.
 
 | Concern | Look for |
 | --- | --- |
@@ -100,6 +100,7 @@ Present the findings as one table of answer, value, and evidence. Then ask, in o
 - The Ready label, only when exploration found an existing label that may mean ready for an agent. Recommend that label. `/flow-to-issues` applies the Ready label to every work item it publishes, and `/flow-build` picks candidates by it.
 - Each gate with no inferable command. Recommend the closest command found, or `n/a`.
 - Whether flow skills should maintain a project board, only when exploration found one. Recommend no.
+- The design authority, only when the repository has a user interface and the `Design system` source is `none`. Offer four answers: build a first `DESIGN.md` from the code (recommend it when screens exist), seed one from five questions (recommend it when nothing is built yet), paste an existing one, or skip. Without a design authority, `/flow-design-check` can judge UI changes only against the nearest comparable screens.
 
 Completion: the user answered the round, and every answer has a value.
 
@@ -130,7 +131,19 @@ Then run the same command without `--dry-run`, adding `--overwrite <path>` for e
 
 Completion: the writer exited 0, and every `keep` file has the user's answer.
 
-### 4. Check and hand off
+### 4. Design authority
+
+Run this step only for the build, seed, or paste answer from step 2. A `DESIGN.md` that already exists is never replaced. Point the `Design system` source at it instead.
+
+- **Build from the code.** Follow the scan mode of the `document` command of the `impeccable` skill, which this kit ships. Its instructions are `reference/document.md` in the impeccable skill's folder, which sits next to this skill's installed folder (for example `~/.claude/skills/impeccable`), or at `vendor/skills/impeccable` in the kit. Its script paths assume `.agents/skills/impeccable`, so run them from the folder you found. It extracts the tokens and components the code already uses, asks the few questions that code cannot answer, and writes `DESIGN.md` at the repository root in the Google Stitch format, with a `DESIGN.json` sidecar.
+- **Seed from five questions.** For a repository with no screens yet, run the same command in seed mode. It writes a minimal `DESIGN.md` marked `<!-- SEED -->`. Run scan mode again once screens exist.
+- **Paste.** Write the pasted text to `DESIGN.md` at the repository root, byte for byte, and never edit it. Check it against the Stitch format: YAML frontmatter with the tokens, then `## Overview`, `## Colors`, `## Typography`, `## Elevation`, `## Components`, and `## Do's and Don'ts`, in that order. Report each missing part, and suggest the `document` command to fill it later. A `DESIGN.md` exported from Google Stitch already has this shape.
+
+Then set `"Design system": "DESIGN.md"` in `<flow>/setup.json` and run the writer again. Only the managed block changes.
+
+Completion: `DESIGN.md` exists at the repository root and the `Design system` source names it, or the developer chose to skip.
+
+### 5. Check and hand off
 
 Run `python3 <skill>/scripts/doctor.py repo <repo>` and paste its output in the reply.
 
@@ -145,7 +158,7 @@ Leave every change uncommitted. Tell the user how to review and commit it on a b
 ```bash
 git status --short && git diff
 git switch -c chore/flow-setup
-git add AGENTS.md CLAUDE.md .gitignore docs/agents <pull request template path>
+git add AGENTS.md CLAUDE.md .gitignore docs/agents <pull request template path> <DESIGN.md and DESIGN.json, when step 4 wrote them>
 git commit -m "chore: add the flow repository profile"
 ```
 
