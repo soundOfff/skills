@@ -98,7 +98,7 @@ Wait for the developer, record the answers, recompute the tree, and repeat.
 
 Apply `docs/agents/domain.md` and the `domain-modeling` skill's discipline as
 terms settle. Update the domain language named in the `Domain language` row of
-`## Sources of truth` inline. Add a decision record only when the ADR threshold
+`## Sources of truth` in `AGENTS.md` inline. Add a decision record only when the ADR threshold
 in `docs/agents/domain.md` is met.
 
 Use this process at every feature size. Persist the map when the runtime ends.

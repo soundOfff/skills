@@ -41,6 +41,7 @@ HARNESS_COMMANDS = {"agents", "clear", "compact", "context", "effort", "loop", "
 
 STACK_WORDS = re.compile(r"\bbunx?\b|vitest|\bbiome\b|\bpnpm\b|npm run|tanstack|drizzle|\bzod\b", re.I)
 LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+FENCE = re.compile(r"^```.*?^```", re.M | re.S)
 SLASH = re.compile(r"(?:^|[\s`(\"'])/([a-z][a-z0-9-]{2,}(?::[a-z0-9-]+)?)(?![\w/.-])")
 PSTACK_REF = re.compile(r"\bpstack:([a-z0-9-]+)")
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
@@ -125,7 +126,7 @@ def check_links_and_refs(skills: dict[str, pathlib.Path], agent_names: set[str])
         if p.suffix != ".md":
             continue
         text = p.read_text(encoding="utf-8")
-        for target in LINK.findall(text):
+        for target in LINK.findall(FENCE.sub("", text)):
             if re.match(r"^(https?:|mailto:|#|<)", target) or "<" in target:
                 continue
             path = target.split("#", 1)[0]
@@ -169,14 +170,18 @@ def check_profile_refs() -> None:
     for p in text_files(FIRST_PARTY):
         if p.suffix != ".md" or p.is_relative_to(FIRST_PARTY / "flow-setup" / "template"):
             continue
-        for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
-            files = ["AGENTS" if m.group(1) is None else m.group(1) for m in PROFILE_FILE.finditer(line)]
-            refs = [h.strip() for h in HEADING_REF.findall(line)]
-            if not files or not refs:
+        text = p.read_text(encoding="utf-8")
+        for para in re.finditer(r"(?:[^\n]+\n?)+", text):
+            files = [(f.start(), f.end(), "AGENTS" if f.group(1) is None else f.group(1)) for f in PROFILE_FILE.finditer(para.group(0))]
+            if not files:
                 continue
-            for ref in refs:
-                if not any(ref in heads.get(f, set()) for f in files):
-                    errors.append(f"{rel(p)}:{n}: `{ref}` is not a heading of {', '.join(sorted(set(files)))} in the flow-setup template")
+            for m in HEADING_REF.finditer(para.group(0)):
+                gap = lambda f: m.start() - f[1] if f[1] <= m.start() else f[0] - m.end()
+                owner = min(files, key=gap)[2]
+                ref = m.group(1).strip()
+                if ref not in heads.get(owner, set()):
+                    line = text.count("\n", 0, para.start() + m.start()) + 1
+                    errors.append(f"{rel(p)}:{line}: `{ref}` is not a heading of {owner} in the flow-setup template")
 
 
 def leak_patterns() -> list[tuple[re.Pattern, str]]:
