@@ -49,16 +49,17 @@ describe("adversarial harness routing", () => {
 	it("prefers the opposite harness and falls back to a fresh caller", () => {
 		assert.deepEqual(candidateOrder("claude"), ["codex", "claude"]);
 		assert.deepEqual(candidateOrder("codex"), ["claude", "codex"]);
-		assert.deepEqual(candidateOrder("cursor"), ["codex", "claude", "cursor"]);
 	});
 
 	it("honors an explicit reviewer before caller fallback", () => {
-		assert.deepEqual(candidateOrder("claude", "cursor"), ["cursor", "claude"]);
+		assert.deepEqual(candidateOrder("claude", "codex"), ["codex", "claude"]);
 		assert.deepEqual(candidateOrder("codex", "codex"), ["codex"]);
 	});
 
 	it("rejects unsupported callers and marks unknown independence unverified", () => {
 		assert.throws(() => candidateOrder("vim"), /Unsupported caller: vim/);
+		assert.throws(() => candidateOrder("cursor"), /Unsupported caller: cursor/);
+		assert.throws(() => candidateOrder("claude", "cursor"), /Unsupported harness: cursor/);
 		assert.deepEqual(candidateOrder("unknown"), ["codex", "claude"]);
 		assert.deepEqual(reviewIndependence("unknown", "codex", "codex"), {
 			cross_harness: null,
@@ -116,13 +117,6 @@ describe("fresh review adapters", () => {
 		assert.equal(isolation.target_evidence, "runner-collected-bounded");
 	});
 
-	it("starts Cursor in plan mode without resuming", () => {
-		const invocation = buildHarnessInvocation("cursor", invocationOptions);
-		assertIncludesAll(invocation.args, ["--mode", "plan"]);
-		assert.ok(!invocation.args.includes("--continue"));
-		assert.ok(!invocation.args.includes("--resume"));
-	});
-
 	it("uses the same Claude-compatible schema across the prompt and adapter", () => {
 		const invocation = buildHarnessInvocation("claude", invocationOptions);
 		const schemaIndex = invocation.args.indexOf("--json-schema") + 1;
@@ -165,7 +159,7 @@ describe("fresh review adapters", () => {
 		);
 		assert.deepEqual(
 			parseHarnessReview(
-				"cursor",
+				"claude",
 				JSON.stringify({ result: JSON.stringify({ review: approved }) }),
 				"/missing",
 			),

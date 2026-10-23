@@ -1,4 +1,4 @@
-export const HARNESSES = new Set(["codex", "claude", "cursor"]);
+export const HARNESSES = new Set(["codex", "claude"]);
 export const CALLERS = new Set([...HARNESSES, "unknown"]);
 
 export function candidateOrder(caller, requested = "auto") {
@@ -13,7 +13,6 @@ export function candidateOrder(caller, requested = "auto") {
 	}
 	if (caller === "claude") return ["codex", "claude"];
 	if (caller === "codex") return ["claude", "codex"];
-	if (caller === "cursor") return ["codex", "claude", "cursor"];
 	return ["codex", "claude"];
 }
 

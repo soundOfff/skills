@@ -37,23 +37,6 @@ export function harnessAvailable(harness) {
 			}
 		});
 	}
-	if (harness === "cursor") {
-		return probe(
-			"cursor",
-			["agent", "status", "--format", "json"],
-			(stdout) => {
-				try {
-					return readBoolean(JSON.parse(stdout), [
-						"loggedIn",
-						"authenticated",
-						"isAuthenticated",
-					]);
-				} catch {
-					return true;
-				}
-			},
-		);
-	}
 	return false;
 }
 
@@ -101,23 +84,6 @@ export function buildHarnessInvocation(harness, options) {
 				readFileSync(SCHEMA_PATH, "utf8"),
 			],
 			stdin: options.prompt,
-		};
-	}
-	if (harness === "cursor") {
-		return {
-			command: "cursor",
-			args: [
-				"agent",
-				"--print",
-				"--mode",
-				"plan",
-				"--output-format",
-				"json",
-				"--workspace",
-				options.repoRoot,
-				options.prompt,
-			],
-			stdin: "",
 		};
 	}
 	throw new Error(`Unsupported harness: ${harness}`);

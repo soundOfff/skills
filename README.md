@@ -35,7 +35,7 @@ Run `/flow-setup` inside the repository. It detects the stack, the issue tracker
 - `.flow/` in `.gitignore`, where the workflow keeps its ledgers;
 - a pull request template on GitHub and GitLab.
 
-A doctor script then checks the result. Running `/flow-setup` again replaces only the managed block.
+A doctor script then checks the result. Running `/flow-setup` again rewrites the managed block and asks before it replaces any changed `docs/agents/` file.
 
 ## The workflow
 

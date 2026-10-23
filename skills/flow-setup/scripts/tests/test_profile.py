@@ -246,6 +246,15 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("FAIL pull request template: .github/pull_request_template.md does not exist", doctor.stdout)
         self.assertIn("FAIL docs/agents/issue-tracker.md: the title says Linear, but the Tracker setting is github", doctor.stdout)
 
+    def test_doctor_fails_a_doc_that_repeats_a_setting(self) -> None:
+        repo = Repo(self)
+        self.assertWrote(repo.write(answers()))
+        kept = repo.text("docs/agents/pr-standard.md") + "\n| Setting | Value |\n| --- | --- |\n| Base branch | `develop` |\n"
+        (repo.root / "docs/agents/pr-standard.md").write_text(kept, encoding="utf-8")
+        doctor = repo.doctor()
+        self.assertEqual(doctor.returncode, 1, doctor.stdout)
+        self.assertIn("FAIL docs/agents/pr-standard.md: repeats the Base branch setting", doctor.stdout)
+
     def test_doctor_checks_that_runner_gates_are_declared(self) -> None:
         repo = Repo(self)
         (repo.root / "package.json").write_text(json.dumps({"scripts": {"lint": "true"}}), encoding="utf-8")

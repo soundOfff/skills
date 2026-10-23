@@ -10,7 +10,7 @@ Run `/flow-adv-review [harness] [--scope auto|working-tree|branch]
 [--base <ref>] [focus...]` as a read-only challenge review.
 This skill is human-invokable only. No skill, coordinator, reviewer, or inferred
 risk may invoke it on the developer's behalf.
-The first argument selects `codex`, `claude`, or `cursor` only when it exactly
+The first argument selects `codex` or `claude` only when it exactly
 matches one of those names. Otherwise every argument is the focus. No harness
 means automatic cross-harness selection. Preserve the focus verbatim.
 
@@ -22,8 +22,8 @@ The runner supplies both to the reviewer.
 
 ## 1. Resolve the target
 
-Determine the current harness as `codex`, `claude`, `cursor`, or `unknown`.
-The runner rejects every other caller value. An `unknown` caller keeps model
+Determine the current harness as `codex`, `claude`, or `unknown`. Any other
+tool, Cursor included, is `unknown`. The runner rejects every other caller value. An `unknown` caller keeps model
 independence explicitly `unverified`. It is never reported as same- or
 cross-harness evidence.
 Accept `--scope auto|working-tree|branch` and `--base <ref>` when supplied.
@@ -36,7 +36,6 @@ Automatic routing is fixed:
 | --- | --- |
 | Claude | Codex, then fresh Claude |
 | Codex | Claude, then fresh Codex |
-| Cursor | Codex, then Claude, then fresh Cursor |
 | Unknown | Codex, then Claude |
 
 An explicit reviewer is tried first, then the caller as fallback when the
@@ -67,7 +66,7 @@ Claude runs with `--safe-mode`, a runner-owned system prompt, and an empty tool
 set. User and project `CLAUDE.md`, auto-memory, skills, plugins, hooks, MCP
 servers, shell commands, and network-capable tools are unavailable, while normal
 OAuth and keychain authentication remains usable. Codex runs ephemerally in its
-read-only sandbox. Cursor runs in plan mode. Local job metadata and results live
+read-only sandbox. Local job metadata and results live
 under the current worktree's `.flow/reviews/`, the one per-worktree exception in
 [Where ledgers live](../flow-mode/references/lifecycle.md#where-ledgers-live).
 The runner refuses to start until `.flow/` is git-ignored. It refuses another

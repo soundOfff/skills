@@ -390,6 +390,11 @@ def check_docs(root: Path, tracker: str | None) -> list[Check]:
                 fixes = (f"re-run /flow-setup and pass --overwrite {label}, or correct the Tracker setting",)
             ops = sections(text).get("## Operations", "").lower()
             problems += [f"Operations lacks {op}" for op in OPERATIONS if not re.search(rf"\b{op}\b", ops)]
+        rows = {line.strip().strip("|").split("|")[0].strip().strip("`") for line in lines if line.strip().startswith("|")}
+        repeated = sorted(rows & set(SETTINGS))
+        if repeated:
+            problems.append(f"repeats the {', '.join(repeated)} setting, which lives only in AGENTS.md ## Settings")
+            fixes = fixes or (f"delete those rows from {label}, or re-run /flow-setup and pass --overwrite {label}",)
         results.append(Check("FAIL", label, "; ".join(problems), fixes) if problems else Check("PASS", label, "present with required sections"))
         results += placeholders(label, text)
     for name, reason in LEGACY_DOCS.items():
