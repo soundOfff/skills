@@ -407,7 +407,7 @@ class ProfileTest(unittest.TestCase):
         skills = home / ".claude" / "skills"
 
         def install() -> None:
-            result = run("bash", str(KIT / "install.sh"), env=env)
+            result = run("bash", str(KIT / "install.sh"), "--no-fetch", env=env)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
         def skills_check() -> str:
@@ -425,6 +425,32 @@ class ProfileTest(unittest.TestCase):
         self.assertFalse(os.path.lexists(skills / "flow-retired"), "install.sh prunes a dangling link into the kit")
         self.assertTrue((skills / "other-tool").is_symlink(), "install.sh leaves another tool's link alone")
         after = skills_check()
+        self.assertTrue(after.startswith("PASS "), after)
+
+    def test_doctor_fails_until_every_pinned_skill_is_fetched(self) -> None:
+        home = scratch(self)
+        kit = home / "kit"
+        shutil.copytree(SCRIPTS.parent, kit / "skills" / "flow-setup", ignore=shutil.ignore_patterns("__pycache__"))
+        (kit / "install.sh").write_text("", encoding="utf-8")
+        pins = "".join(f'\n[[skills]]\nname = "{n}"\nsource = "owner/repo"\nref = "{"0" * 40}"\npath = "skills/{n}"\n' for n in ("alpha", "beta"))
+        (kit / "agents.toml").write_text("version = 1\n" + pins, encoding="utf-8")
+        env = {**ENV, "CLAUDE_DIR": str(home / ".claude"), "CODEX_DIR": str(home / ".codex"), "AGENTS_DIR": str(home / ".agents")}
+
+        def fetch(name: str) -> None:
+            folder = kit / ".agents" / "skills" / name
+            folder.mkdir(parents=True)
+            (folder / "SKILL.md").write_text(f"---\nname: {name}\n---\n", encoding="utf-8")
+
+        def fetched_check() -> str:
+            out = run(sys.executable, str(kit / "skills" / "flow-setup" / "scripts" / "doctor.py"), "machine", env=env).stdout
+            return next(line for line in out.splitlines() if " Third-party skills: " in line)
+
+        fetch("alpha")
+        before = fetched_check()
+        self.assertTrue(before.startswith("FAIL "), before)
+        self.assertIn("missing beta", before)
+        fetch("beta")
+        after = fetched_check()
         self.assertTrue(after.startswith("PASS "), after)
 
     def test_an_unusable_target_exits_2_and_writes_nothing(self) -> None:

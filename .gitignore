@@ -1,6 +1,10 @@
 # Backups created by install.sh when it displaces real files
 .install-backup/
 
+# Written by dotagents when install.sh fetches the skills in agents.toml
+agents.lock
+.agents/.gitignore
+
 .DS_Store
 __pycache__/
 tools/leak-patterns.local

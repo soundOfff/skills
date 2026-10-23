@@ -550,6 +550,35 @@ def check_duplicates(agents: Path, skills: dict[str, Path], kit: Path) -> Check:
     )
 
 
+# Python 3.9 has no tomllib, so read the names the way install.sh does.
+def pinned_names(kit: Path) -> list[str]:
+    path = kit / "agents.toml"
+    if not path.is_file():
+        return []
+    names: list[str] = []
+    in_skill = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("["):
+            in_skill = line.startswith("[[skills]]")
+        elif in_skill:
+            m = re.match(r'name *= *"([^"]*)"', line)
+            if m:
+                names.append(m.group(1))
+    return names
+
+
+def check_fetched(folder: Path, names: list[str], kit: Path) -> Check:
+    missing = [name for name in names if not (folder / name / "SKILL.md").is_file()]
+    if missing:
+        return Check(
+            "FAIL",
+            "Third-party skills",
+            f"{len(names) - len(missing)}/{len(names)} from agents.toml fetched into {folder}; missing {short(missing)}",
+            (f"cd {kit} && ./install.sh",),
+        )
+    return Check("PASS", "Third-party skills", f"{len(names)}/{len(names)} from agents.toml fetched into {folder}")
+
+
 def machine_checks() -> list[Check]:
     kit = Path(__file__).resolve().parents[3]
     if not (kit / "install.sh").is_file() or not (kit / "skills").is_dir():
@@ -557,18 +586,17 @@ def machine_checks() -> list[Check]:
     claude = home_dir("CLAUDE_DIR", Path.home() / ".claude")
     codex = home_dir("CODEX_DIR", Path.home() / ".codex")
     agents = home_dir("AGENTS_DIR", claude.parent / ".agents")
-    skills = {
-        d.name: d
-        for base in (kit / "skills", kit / "vendor" / "skills")
-        if base.is_dir()
-        for d in sorted(base.iterdir())
-        if (d / "SKILL.md").is_file()
-    }
+    fetched = kit / ".agents" / "skills"
+    pinned = pinned_names(kit)
+    declared = {d.name: d for d in sorted((kit / "skills").iterdir()) if (d / "SKILL.md").is_file()}
+    declared.update((name, fetched / name) for name in pinned)
+    skills = {name: d for name, d in declared.items() if (d / "SKILL.md").is_file()}
     claude_agents = {p.name: p for p in sorted((kit / "agents" / "claude").glob("*.md"))}
     codex_agents = {p.name: p for p in sorted((kit / "agents" / "codex").glob("*.toml"))}
     flow = sorted(p.stem for p in (kit / "agents" / "roles").glob("flow-*.md"))
     return [
-        Check("PASS", "kit root", f"{kit}; {len(skills)} skills, flow agents {', '.join(flow)}"),
+        Check("PASS", "kit root", f"{kit}; {len(declared)} skills, flow agents {', '.join(flow)}"),
+        check_fetched(fetched, pinned, kit),
         check_links("Claude Code skills", claude / "skills", skills, kit),
         check_links("Codex skills", codex / "skills", skills, kit),
         check_links("Claude Code agents", claude / "agents", claude_agents, kit),
@@ -577,7 +605,7 @@ def machine_checks() -> list[Check]:
         check_codex_pstack(codex),
         check_model_rule("Claude Code model rules", claude / "rules" / "pstack-models.md", "Claude Code"),
         check_model_rule("Codex model rules", codex / "pstack-models.md", "Codex"),
-        check_duplicates(agents, skills, kit),
+        check_duplicates(agents, declared, kit),
     ]
 
 
