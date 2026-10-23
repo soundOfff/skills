@@ -165,6 +165,11 @@ def check_leaks() -> None:
                 line = text.count("\n", 0, m.start()) + 1
                 errors.append(f"{rel(p)}:{line}: {label} leak {m.group(0)!r}")
         top = p.relative_to(FIRST_PARTY).parts[0] if p.is_relative_to(FIRST_PARTY) else ""
+        if p.suffix == ".md" and "—" in text:
+            line = text.count("\n", 0, text.index("—")) + 1
+            msg = f"{rel(p)}:{line}: em dash; use a period or a comma (pstack:unslop rule 13)"
+            authored = top.startswith("flow-") or p.is_relative_to(AGENTS / "roles") or p.parent == ROOT
+            (errors if authored else warnings).append(msg)
         if top.startswith("flow-") and top != "flow-setup":
             for m in STACK_WORDS.finditer(text):
                 line = text.count("\n", 0, m.start()) + 1
