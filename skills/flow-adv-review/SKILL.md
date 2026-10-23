@@ -61,18 +61,19 @@ context under fixed file and byte limits. It never asks the reviewer to run Git
 or reconstruct the target. If the complete target cannot be represented safely
 inside those bounds, the review fails explicitly.
 
-The runner launches a detached CLI process with a fresh session, no
-resume or continue state, the shared adversarial prompt, and the shared output
-schema. Claude runs with `--safe-mode`, a runner-owned system prompt, and an
-empty tool set. User and project `CLAUDE.md`, auto-memory, skills, plugins,
-hooks, MCP servers, shell commands, and network-capable tools are unavailable,
-while normal OAuth and keychain authentication remains usable. Codex runs
-ephemerally in its read-only sandbox. Cursor runs in plan mode. Local job
-metadata and results live under `.flow/reviews/`, and the runner refuses to
-start until `.flow/` is git-ignored. It refuses another live job for the same
-target fingerprint, records a finite deadline, and stores each executed
-harness's bounded raw stdout, stderr, and structured output mode `0600` in its
-ignored job directory.
+The runner launches a detached CLI process with a fresh session, no resume or
+continue state, the shared adversarial prompt, and the shared output schema.
+Claude runs with `--safe-mode`, a runner-owned system prompt, and an empty tool
+set. User and project `CLAUDE.md`, auto-memory, skills, plugins, hooks, MCP
+servers, shell commands, and network-capable tools are unavailable, while normal
+OAuth and keychain authentication remains usable. Codex runs ephemerally in its
+read-only sandbox. Cursor runs in plan mode. Local job metadata and results live
+under the current worktree's `.flow/reviews/`, the one per-worktree exception in
+[Where ledgers live](../flow-mode/references/lifecycle.md#where-ledgers-live).
+The runner refuses to start until `.flow/` is git-ignored. It refuses another
+live job for the same target fingerprint, records a finite deadline, and stores
+each executed harness's bounded raw stdout, stderr, and structured output mode
+`0600` in its ignored job directory.
 
 Completion: `start` returns one job id and the background worker reaches
 `queued` or `running`. A launch error is reported as a failed check.

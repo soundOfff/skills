@@ -1,6 +1,6 @@
 # Delivery lifecycle
 
-Tracked work moves through four human-invoked stages. Each stage owns one ledger under the repository's git-ignored `.flow/` folder and ends by handing control back to the developer. A stage never starts the next one on its own.
+Tracked work moves through four human-invoked stages. Each stage owns one ledger under [`.flow/`](#where-ledgers-live) and ends by handing control back to the developer. A stage never starts the next one on its own.
 
 ```text
 idea ──/flow-create (optional)──▶ confirmed feature map
@@ -10,7 +10,7 @@ committed branch ──/flow-to-pr (required)──▶ published pull request
 published pull request ──▶ recommended: /flow-code-check (code), /flow-design-check (UI)
 ```
 
-`/flow-adv-review` runs only when the developer asks for it. No skill or agent invokes it on their behalf. Review results are advice. They never block publication and never start a repair loop by themselves. The developer owns the fix, defer, and merge decisions.
+`/flow-code-check` and `/flow-design-check` are recommended after publication. They are not stages. `/flow-adv-review` runs only when the developer asks for it. No skill or agent invokes it on their behalf. Review results are advice. They never block publication and never start a repair loop by themselves. The developer owns the fix, defer, and merge decisions.
 
 ## Stages and their states
 
@@ -21,9 +21,19 @@ published pull request ──▶ recommended: /flow-code-check (code), /flow-des
 | `/flow-build` | `.flow/builds/<issue>.md` | `planning` → `building` → `verifying` → `awaiting-to-pr`, or `needs-decision`, or `blocked` |
 | `/flow-to-pr` | `.flow/prs/<issue>.md` | `preflight` → `publication-ready` → `published`, or `needs-decision`, or `blocked` |
 | `/flow-help` | `.flow/help/<slug>.md`, only when the developer asks to save | `active` until the developer stops it |
-| `/flow-adv-review` | `.flow/reviews/` | managed by its runner |
+| `/flow-adv-review` | `.flow/reviews/` in the current worktree | managed by its runner |
 
 Only the coordinating skill writes its ledger. Dispatched workers return evidence to it.
+
+## Where ledgers live
+
+`.flow/` means one folder that every worktree of the repository shares: the git-ignored `.flow/` folder at the root of the main worktree. Resolve it from any worktree with:
+
+```bash
+echo "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.flow"
+```
+
+Every stage reads and writes its ledgers there, whichever worktree it runs in. `/flow-adv-review` is the exception. It keeps its jobs in the current worktree's `.flow/reviews/`, because a job reviews one working tree.
 
 ## Untracked work
 
@@ -31,7 +41,7 @@ Not every change needs an issue. A quick fix, a spike, or a repository without a
 
 ## Nudges
 
-These skills are human-invoked, so suggest them at the right moment instead of running them:
+Suggest these skills at the right moment instead of running them. The stages are human-invoked, and the review checks are recommendations the developer chooses to run:
 
 - An unbriefed feature idea: suggest `/flow-create`.
 - A settled plan, a confirmed feature map, or a grilling session that ends in "let's build it": suggest `/flow-to-issues` before any code, so the plan becomes Ready issues instead of a mental note.

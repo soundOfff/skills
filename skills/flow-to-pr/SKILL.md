@@ -15,9 +15,9 @@ auto-merge label.
 
 The published pull request is the successful outcome. Review and validation
 results may be missing without blocking publication. Report them honestly as
-`not run`. Always read `docs/agents/pr-standard.md`,
-`docs/agents/issue-tracker.md`, and the delivery lifecycle in
-[`lifecycle.md`](../flow-mode/references/lifecycle.md). When `AGENTS.md` has no
+`not run`. Always read the `## Settings` table in `AGENTS.md`,
+`docs/agents/pr-standard.md`, `docs/agents/issue-tracker.md`, and the delivery
+lifecycle in [`lifecycle.md`](../flow-mode/references/lifecycle.md). When `AGENTS.md` has no
 flow block or either standard is missing, stop and suggest `/flow-setup`.
 
 This skill publishes tracked work only. Untracked work ships through
@@ -26,8 +26,10 @@ This skill publishes tracked work only. Untracked work ships through
 ## 1. Resolve the publication lane
 
 Resolve the supplied issue. Without one, select the only
-`.flow/builds/<issue>.md` in `status: awaiting-to-pr` whose recorded worktree is
-the current worktree. Any ambiguity requires the developer to select.
+`.flow/builds/<issue>.md` in the shared
+[ledger folder](../flow-mode/references/lifecycle.md#where-ledgers-live) with
+`status: awaiting-to-pr` whose recorded worktree is the current worktree. Any
+ambiguity requires the developer to select.
 
 Fetch the issue, comments, parent, dependencies, assignee, and any board fields
 that `issue-tracker.md` `## Board` names. Require an open work issue, not a
@@ -37,12 +39,12 @@ feature parent, with binding scope and a Review boundary.
   current lane. Treat its test, acceptance, and repository proof as reported
   evidence, not a publication gate.
 - Without a handoff, use the current branch. Require a clean, committed branch
-  other than the base branch from `pr-standard.md` `## Lifecycle`, and map the
+  other than the `Base branch` setting, and map the
   complete `origin/<base>...HEAD` diff to the issue. Do not create or backfill
   `.flow/builds/`.
 - If the issue is unassigned, claim it for the authenticated actor per
   `issue-tracker.md` `## Claiming work`. Never replace another assignee. When
-  `## Board` names a work status and a start date, set the status to its
+  `issue-tracker.md` `## Board` names a work status and a start date, set the status to its
   in-progress value and set the start date only when it is empty. Record the
   before and after values.
 
@@ -79,14 +81,12 @@ hunk maps to the issue, or the exact conflict or scope decision is recorded.
 
 ## 3. Prepare the pull request
 
-Build the title and body from the forge's pull request template that
-`pr-standard.md` `## Body` names, when it exists, and from the rules in that
-section. Write the prose per
-`pstack:technical-writing` and `pstack:unslop`. The body must:
+Build the title and body from the file that the `Pull request template` setting
+names, unless it reads `none`, and from the rules in `pr-standard.md` `## Body`.
+Write the prose per `pstack:technical-writing` and `pstack:unslop`. The body must:
 
 - lead with what changed and why;
-- contain the closing reference in the tracker's syntax from
-  `issue-tracker.md`, which for GitHub is `Closes #<issue>`;
+- contain the `Closing reference` setting with this issue filled in;
 - report known validation results without converting `not run` into success;
 - disclose risk, diff-budget exceptions, and available UI evidence;
 - leave review or validation items incomplete when they were not performed.
@@ -114,10 +114,10 @@ git push --force-with-lease=refs/heads/<branch>:<expected-remote-sha> -u origin 
 ```
 
 Never retry with an unpinned lease. Create or update one pull request against
-`<base>` in the publish mode from `pr-standard.md` `## Lifecycle`, which is
-`draft` or `ready`, and `draft` when the section names none. An existing draft
-stays a draft. Then verify its remote head SHA, base, draft state, title, body,
-and closing reference. Record the PR number and URL and set
+`<base>` on the forge that the `Forge` setting names, in the `Publish mode`
+setting, which is `draft` or `ready`, and `draft` when the setting is missing.
+An existing draft stays a draft. Then verify its remote head SHA, base, draft
+state, title, body, and closing reference. Record the PR number and URL and set
 `status: published`.
 
 Completion: the remote branch equals the pinned HEAD and one verified pull

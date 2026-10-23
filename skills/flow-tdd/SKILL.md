@@ -1,5 +1,5 @@
 ---
-name: tdd
+name: flow-tdd
 description: Test-drive executable behavior through public seams with a red, green, refactor loop. Use for behavior-changing work, when the user wants to build a feature or fix a bug test-first, mentions red-green-refactor, or wants integration tests.
 ---
 

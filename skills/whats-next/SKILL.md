@@ -45,12 +45,12 @@ Skip any source that fails or does not exist in this repository.
 - Your open pull requests, with their review state and check status (`gh pr list --author @me --state open --limit 10`)
 - Review requests waiting on you (`gh pr list --search "review-requested:@me" --state open --limit 5`)
 
-**Issue tracker**, only when `docs/agents/issue-tracker.md` exists. Use the read and list operations from its `## Operations` section, and its `## Board` section only when it has one:
+**Issue tracker**, only when `docs/agents/issue-tracker.md` exists. Use the read and list operations in `issue-tracker.md` `## Operations`, and `issue-tracker.md` `## Board` only when the file has one:
 
 - Issues assigned to you that are in progress, in review, or blocked
 - Recently updated issues assigned to you
 
-**Flow ledgers**, only when `.flow/` exists. Read the `status` of each ledger under `features/`, `issues/`, `builds/`, and `prs/`. A ledger is waiting when its status is one of these. Skip a ledger whose work already has a ledger at a later stage.
+**Flow ledgers**, only when the shared [`.flow/` folder](../flow-mode/references/lifecycle.md#where-ledgers-live) exists. Read the `status` of each ledger under `features/`, `issues/`, `builds/`, and `prs/`. A ledger is waiting when its status is one of these. Skip a ledger whose work already has a ledger at a later stage.
 
 | Ledger status | Next action |
 | --- | --- |

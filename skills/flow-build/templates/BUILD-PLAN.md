@@ -39,7 +39,7 @@ updated_at: null
 
 | ID | Completion criterion | Owned paths | Blocked by | Diagnosis and loop | TDD and red command | Capability references | Agent | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 |  |  | none | not-applicable | required: `<command>` | `flow-build/references/builder.md`; `tdd` |  | planned |
+| B1 |  |  | none | not-applicable | required: `<command>` | `flow-build/references/builder.md`; `flow-tdd` |  | planned |
 
 ## Dispatch gate
 

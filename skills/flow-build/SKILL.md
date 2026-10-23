@@ -10,29 +10,30 @@ Turn `/flow-build [issue number or URL]` into a locally committed PR integration
 branch ready for `/flow-to-pr`. One invocation owns one work issue. Feature
 parents are completion containers, not build targets.
 
-The coordinator is the only writer to `.flow/builds/<issue>.md` and the only
-committer. Implementation belongs to dispatched builder agents. The coordinator
-and every builder share the future PR's integration worktree. `/flow-to-pr`
-continues in that same lane. This skill may claim the existing issue and update
-its existing board item. It creates no tracker item, pushes no branch, and
-opens no PR.
+The coordinator is the only writer to `.flow/builds/<issue>.md`, in the shared
+[ledger folder](../flow-mode/references/lifecycle.md#where-ledgers-live), and
+the only committer. Implementation belongs to dispatched builder agents. The
+coordinator and every builder share the future PR's integration worktree.
+`/flow-to-pr` continues in that same lane. This skill may claim the existing
+issue and update its existing board item. It creates no tracker item, pushes no
+branch, and opens no PR.
 
 Always read `docs/agents/ticket-standard.md`, `docs/agents/issue-tracker.md`
-`## Claiming work`, the base branch in `docs/agents/pr-standard.md`
-`## Lifecycle`, and the dispatch and capability routing in
+`## Claiming work`, the `Base branch` and `Ready label` settings in `AGENTS.md`
+`## Settings`, and the dispatch and capability routing in
 [`dispatch.md`](../flow-mode/references/dispatch.md). When `AGENTS.md` has no
 flow block or one of these files is missing, stop and suggest `/flow-setup`.
 Builders follow [`builder.md`](references/builder.md). `dispatch.md` owns
-capability routing. The `tdd` and `diagnose` skills own the loops they teach
-once routed.
+capability routing. The `flow-tdd` and `diagnose` skills own the loops they
+teach once routed.
 
 ## 1. Resolve the work issue
 
-Use the supplied issue number or URL. Without one, resolve the current branch
-or worktree to an issue. If that yields none, list open work issues assigned to
-the developer that carry the label `docs/agents/triage-labels.md` maps to the
-`ready-for-agent` role. Continue only when exactly one candidate exists.
-Otherwise present the candidates and wait for the developer's selection.
+Use the supplied issue number or URL. Without one, resolve the current branch or
+worktree to an issue. If that yields none, list open work issues that carry the
+`Ready label` setting and are unassigned or assigned to the developer. Continue
+only when exactly one candidate exists. Otherwise present the candidates and
+wait for the developer's selection.
 
 Fetch the issue, comments, parent, dependencies, assignee, labels, and any board
 fields that `issue-tracker.md` `## Board` names. The newest explicit human
@@ -63,10 +64,10 @@ changes all agree. Otherwise create the future PR's worktree once on
 `issue-<number>-<slug>` from `origin/<base>`. Every implementation assignment
 and the later `/flow-to-pr` invocation use this one worktree.
 
-Claim the issue per `issue-tracker.md` `## Claiming work`. When `## Board`
-exists, also set the status and dates it names for work start. Record the base
-SHA, branch, worktree, actor, and claim evidence in the plan. Keep the branch
-local.
+Claim the issue per `issue-tracker.md` `## Claiming work`. When
+`issue-tracker.md` `## Board` exists, also set the status and dates it names for
+work start. Record the base SHA, branch, worktree, actor, and claim evidence in
+the plan. Keep the branch local.
 
 Completion: the issue has one verified claim and one PR integration worktree
 based on the fetched `origin/<base>`. The ledger points to both and names the
@@ -80,8 +81,8 @@ criterion to one or more bounded assignments. Each assignment records:
 - one observable completion criterion;
 - exact owned paths and prohibited overlaps;
 - dependency edges;
-- the classification and proof required by the classification contract in the
-  `flow-reuse-auditor` agent definition;
+- the classification and proof required by the
+  [classification contract](../flow-mode/references/reuse-classes.md);
 - `builder.md` plus every capability reference selected by the routing in
   `dispatch.md`;
 - `TDD: required` with one public test seam and first red command, or one
@@ -108,10 +109,12 @@ Set `status: building`. Dispatch every unblocked, path-disjoint assignment
 concurrently as the Builder role that `dispatch.md` `## Roles` names for the
 current harness (`pstack:poteto-agent` under Claude Code). At least one builder
 agent is required. Each prompt contains only the dispatch contract from
-`dispatch.md`, the PR integration worktree path, owned paths, dependencies,
-completion criterion, and selected capability references. A TDD assignment also
-carries its public seam and first red command. An exception carries its
-authorized class and required pre-change and post-change proof.
+`dispatch.md`, with `Engine:` set to the absolute path of poteto-mode's
+`SKILL.md` that [flow-mode](../flow-mode/SKILL.md#start) step 1 resolves, the PR
+integration worktree path, owned paths, dependencies, completion criterion, and
+selected capability references. A TDD assignment also carries its public seam
+and first red command. An exception carries its authorized class and required
+pre-change and post-change proof.
 
 Builders edit the PR integration worktree and leave changes uncommitted. For
 every report, inspect the diff directly. Accept it only when the diff stays

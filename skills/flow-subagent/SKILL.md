@@ -6,19 +6,24 @@ description: Spawn one flow role subagent and supervise it to completion. Use wh
 # Spawn a flow role subagent
 
 Roles are `flow-code-mapper`, `flow-reuse-auditor`, `flow-design-mapper`,
-`flow-researcher`, and `flow-fact-lookup`. The role table, the dispatch contract,
-and the missing-agent rule live in [dispatch.md](../flow-mode/references/dispatch.md).
-Each agent definition pins its model, effort, and read-only posture. **Never pass
-a model or reasoning override.** Give the subagent one bounded task. Role
-behavior comes from its agent definition, not your prompt.
+`flow-researcher`, and `flow-fact-lookup`. The role table, the dispatch
+contract, and the missing-agent rule live in
+[dispatch.md](../flow-mode/references/dispatch.md). Each agent definition pins
+its model and effort, and the pin applies whenever you pass no model. An
+override replaces it. **Never pass a model or reasoning override.** Read-only is
+by instruction, as dispatch.md explains, because most Claude definitions keep
+Bash. The task forbids edits, and you check `git status` afterward. The Codex
+definitions also run in a read-only sandbox. Give the subagent one bounded task.
+Role behavior comes from its agent definition, not your prompt.
 
 ## Same harness is the default
 
 - **You are Claude.** Dispatch the Agent tool with the `flow-*` agent type.
 - **You are Codex.** Spawn the named agent.
 
-If the agent type is missing, follow the missing-agent rule in dispatch.md, then
-spawn.
+If the agent type is missing, follow the missing-agent rule in dispatch.md. An
+agent installed now loads only in the next session, so this session spawns the
+read-only fallback it names and tells the developer to install and restart.
 
 ## The developer names the other CLI
 

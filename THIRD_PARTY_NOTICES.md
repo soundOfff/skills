@@ -4,7 +4,7 @@ Some skills in this kit are copied or adapted from other projects. Each project'
 
 | Upstream | License | Copyright notice | Skills |
 | --- | --- | --- | --- |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Copyright (c) 2026 Matt Pocock | Vendored: `grill-me`, `grill-with-docs`, `handoff`, `resolving-merge-conflicts`. Adapted: `grilling`, `tdd`, `diagnose`, `prototype`, `domain-modeling`, `research`. |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Copyright (c) 2026 Matt Pocock | Vendored: `grill-me`, `grill-with-docs`, `handoff`, `resolving-merge-conflicts`. Adapted: `grilling`, `flow-tdd`, `diagnose`, `prototype`, `domain-modeling`, `research`. |
 | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | MIT, declared in the skill's frontmatter | Vercel | Adapted: `react-best-practices`, `react-composition-patterns`. |
 | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | Copyright (c) 2026 OpenClaw Foundation | Adapted: `test-audit`. |
 | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | MIT | Copyright (c) 2026 Jakub Krehel | Vendored: `better-ui`, `better-interface`. |

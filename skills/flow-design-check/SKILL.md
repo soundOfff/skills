@@ -20,8 +20,8 @@ return `BLOCKED` and suggest `/flow-setup`.
 ## 1. Pin the PR target
 
 Use a supplied base SHA, HEAD SHA, diff hash, issue, and focus when present.
-Otherwise fetch `origin/<base>`, with the base branch from
-`docs/agents/pr-standard.md` `## Lifecycle`, use its merge-base with `HEAD`,
+Otherwise fetch `origin/<base>`, with the `Base branch` setting from
+`AGENTS.md` `## Settings`, use its merge-base with `HEAD`,
 require a clean working tree, and compute:
 
 ```text

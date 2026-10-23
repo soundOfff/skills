@@ -82,10 +82,12 @@ act on it without first supplying discoverable project context.
 ## 4. Persist only when requested
 
 Ordinary help uses the conversation as its state. Create a persistent session
-from [`HELP-SESSION.md`](templates/HELP-SESSION.md) at
-`.flow/help/<slug>.md` only when the developer asks to save or resume the work,
-or requests an ongoing lesson or investigation. Temporary diagnostic probes
-otherwise use an OS temporary directory.
+from [`HELP-SESSION.md`](templates/HELP-SESSION.md) at `.flow/help/<slug>.md` in
+the shared [ledger
+folder](../flow-mode/references/lifecycle.md#where-ledgers-live) only when the
+developer asks to save or resume the work, or requests an ongoing lesson or
+investigation. Temporary diagnostic probes otherwise use an OS temporary
+directory.
 
 When the developer requests implementation, provide a compact handoff without
 invoking another skill:

@@ -7,8 +7,10 @@ disable-model-invocation: true
 # Flow create
 
 Turn the text after `/flow-create` into a build-ready feature map at
-`.flow/features/<slug>.md`. If the input names an existing map, resume it. If no
-description or map is supplied, ask for one and stop.
+`.flow/features/<slug>.md` in the shared [ledger
+folder](../flow-mode/references/lifecycle.md#where-ledgers-live). If the input
+names an existing map, resume it. If no description or map is supplied, ask for
+one and stop.
 
 The feature map is the single source of briefing state. The main agent is its
 only writer. Tracker mutation belongs to `/flow-to-issues`. Production code
@@ -75,10 +77,10 @@ Completion: every applicable role has returned. Non-applicable roles are marked
 ## 4. Enforce the Reuse Gate
 
 Every required behavior has at least one **Change surface** row and one **Reuse
-map** row classified and proved by the classification contract in the
-`flow-reuse-auditor` agent definition. Resolve Code Mapper and Reuse Auditor
-disagreements with additional evidence. An unresolved disagreement fails the
-gate.
+map** row classified and proved by the [classification
+contract](../flow-mode/references/reuse-classes.md). Resolve Code Mapper and
+Reuse Auditor disagreements with additional evidence. An unresolved disagreement
+fails the gate.
 
 Completion: every behavior is classified with `path:line` evidence and every
 `NEW` row has a complete new-code proof.

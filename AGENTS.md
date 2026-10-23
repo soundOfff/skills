@@ -23,3 +23,5 @@ This repository is a skill kit. `install.sh` symlinks it into Claude Code and Co
 - Never edit a vendored skill in place. To change one, fork it into `skills/` under the same name, delete the vendored copy, and remove its lock entry.
 - Before adding or removing a skill, run `python3 tools/skill_usage.py` and decide from measured use.
 - Run `./install.sh --dry-run` before `./install.sh`. The installer backs up real files it displaces into `.install-backup/` and never deletes them.
+- This repository is public. The company-data scan reads its patterns from the git-ignored `tools/leak-patterns.local`, one `label<TAB>regex` per line. Keep sensitive names only in that file, never in a tracked file or a commit message.
+- `skills/flow-setup/scripts/` runs inside other repositories, so it must work on Python 3.9, the version macOS ships. The tools in `tools/` need Python 3.11 or later.

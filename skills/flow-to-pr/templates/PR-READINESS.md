@@ -13,7 +13,7 @@ updated_at: null
 ---
 
 <!-- status: preflight | publication-ready | published | needs-decision | blocked -->
-<!-- publish_mode: draft | ready, from docs/agents/pr-standard.md ## Lifecycle, draft when absent -->
+<!-- publish_mode: draft | ready, from the Publish mode row of AGENTS.md ## Settings, draft when absent -->
 
 # PR publication
 
@@ -58,7 +58,7 @@ updated_at: null
 - [ ] The optional build handoff or direct branch evidence matches this lane.
 - [ ] The branch is clean, committed, rebased on fetched `origin/<base>`, and contains no merge commits.
 - [ ] Every changed hunk maps to the issue and preserves its no-gos.
-- [ ] The proposed title and body follow `docs/agents/pr-standard.md` `## Body` and the PR template when present, and include the tracker's closing reference.
+- [ ] The proposed title and body follow `docs/agents/pr-standard.md` `## Body` and the `Pull request template` setting, and include the `Closing reference` setting.
 - [ ] Validation and UI evidence are reported honestly, including `not run`.
 - [ ] An immediate pre-push fetch confirms the recorded base equals `origin/<base>`.
 

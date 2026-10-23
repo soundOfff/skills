@@ -7,6 +7,7 @@ graph, integration, and commits.
 
 ## Before writing code
 
+- When the dispatch names an `Engine`, read that `SKILL.md` in full first and follow it.
 - Read `AGENTS.md`, the dispatched issue pointer, and the assignment. The newest
   explicit human scoping comment is binding.
 - Confirm the completion criterion, owned paths, prohibited overlaps, reuse
@@ -25,7 +26,7 @@ graph, integration, and commits.
 - For dispatched bug diagnosis, follow [the `diagnose` skill](../../diagnose/SKILL.md).
   Confirm the cause before editing implementation paths. A diagnosis-only
   assignment returns its evidence without a product change.
-- For `TDD: required`, follow [the `tdd` skill](../../tdd/SKILL.md) against the
+- For `TDD: required`, follow [the `flow-tdd` skill](../../flow-tdd/SKILL.md) against the
   assigned seam, and record the red and green evidence the report contract
   requires.
 - Run the `test-file` gate on the affected test file and the `typecheck` gate

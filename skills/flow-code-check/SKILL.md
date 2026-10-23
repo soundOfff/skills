@@ -20,18 +20,19 @@ an automatic repair or rereview cycle.
 ## 1. Pin the review packet
 
 Resolve the repository root, current `HEAD`, and base. Use the supplied base.
-Otherwise use the merge-base with `origin/<base>`, with the base branch from
-`docs/agents/pr-standard.md` `## Lifecycle`, or the remote's default branch when
-that file is absent. Include working-tree changes when present. Reject an
-unresolved base or empty change before dispatch.
+Otherwise use the merge-base with `origin/<base>`, with the `Base branch`
+setting from `AGENTS.md` `## Settings`, or the remote's default branch when
+`AGENTS.md` has no flow block. Include working-tree changes when present. Reject
+an unresolved base or empty change before dispatch.
 
-Resolve the binding issue/spec from the supplied focus, `.flow/builds/`, branch
-commits, or issue references. Collect only the repository instructions and ADRs
-applicable to changed paths. The `Conventions` and `Decisions` rows of
+Resolve the binding issue/spec from the supplied focus, the shared
+[`.flow/builds/`](../flow-mode/references/lifecycle.md#where-ledgers-live),
+branch commits, or issue references. Collect only the repository instructions
+and ADRs applicable to changed paths. The `Conventions` and `Decisions` rows of
 `## Sources of truth` in `AGENTS.md` say where they live. Pick capability
 entrypoints by the capability routing in
-[`dispatch.md`](../flow-mode/references/dispatch.md#capability-routing). Build the
-packet exactly from the authoritative **Input** section of
+[`dispatch.md`](../flow-mode/references/dispatch.md#capability-routing). Build
+the packet exactly from the authoritative **Input** section of
 [`WORKER-CONTRACT.md`](WORKER-CONTRACT.md), using those resolved pointers as its
 issue, instruction, ADR, and capability inputs.
 

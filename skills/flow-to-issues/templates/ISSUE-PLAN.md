@@ -38,7 +38,7 @@ approval: null
 
 | Draft ID | Type | Title | Parent | Labels | Board fields |
 | --- | --- | --- | --- | --- | --- |
-| W1 | `feature-parent \| work-item` |  |  |  | none |
+| W1 | `feature-parent \| work-item` |  |  | `<Ready label for a work item>` | none |
 
 ## Review horizons
 
@@ -63,6 +63,8 @@ approval: null
 
 <exact feature-parent or work-item body>
 
+<!-- flow-draft: <plan-slug>/<Draft ID> -->
+
 ## Draft gate
 
 - [ ] Sources are authoritative and conflicts or missing decisions are explicit.
@@ -71,9 +73,11 @@ approval: null
 - [ ] No outcome slice has overlapping owners.
 - [ ] Every work item maps to a source outcome or repository requirement.
 - [ ] Work has exactly one shape from `ticket-standard.md` `## Hierarchy`.
-- [ ] Every item has the parent `## Hierarchy` requires, existing or proposed for separate approval.
+- [ ] Every item has the parent `ticket-standard.md` `## Hierarchy` requires, existing or proposed for separate approval.
 - [ ] When `issue-tracker.md` has a `## Board`, every item has the placement and fields it requires, and every new board value is proposed for separate approval.
 - [ ] Every work item passes the Definition of Ready.
+- [ ] Every work item's labels include the `Ready label` setting from `AGENTS.md` `## Settings`.
+- [ ] Every body ends with its `<!-- flow-draft: <plan-slug>/<Draft ID> -->` marker.
 - [ ] Every work item has an evidenced review boundary.
 - [ ] Dependency edges are real, native, and acyclic.
 - [ ] No unadopted issue owns the same work.
@@ -90,16 +94,19 @@ approval: null
 
 ## Publish gate
 
-- [ ] `status: approved` and `approved_at` is set.
+- [ ] `approved_at` is set, and `status` is `approved`, or `publishing` or `partial` on resume.
 - [ ] Exact bodies and mutations still match the recorded approval.
 - [ ] Duplicate reconciliation was refreshed immediately before publication.
+- [ ] Every item that already carries this plan's marker has a row in **Published issues**, and only the drafts without one remain to create.
 - [ ] Every separately controlled mutation has explicit approval.
 
 ## Published issues
 
-| Draft ID | Issue | Parent verified | Board verified | Metadata verified | Body verified |
-| --- | --- | --- | --- | --- | --- |
-|  |  |  | not-applicable |  |  |
+Write each row immediately after its create call returns, before the next tracker write.
+
+| Draft ID | Item id | URL | Parent verified | Board verified | Metadata verified | Body verified |
+| --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  | not-applicable |  |  |
 
 ## Partial publication
 
