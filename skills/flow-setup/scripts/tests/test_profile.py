@@ -22,7 +22,8 @@ import unittest
 from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent.parent
-GATES = ("install", "dev", "format", "lint", "typecheck", "test", "test-file", "e2e", "build", "design", "health")
+KIT = SCRIPTS.parents[2]
+GATES =("install", "dev", "format", "lint", "typecheck", "test", "test-file", "e2e", "build", "design", "health")
 SOURCES = ("Domain language", "Decisions", "Conventions", "Design system", "Structure")
 DOCS = ("issue-tracker.md", "ticket-standard.md", "pr-standard.md", "domain.md")
 ENV = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
@@ -44,17 +45,25 @@ def answers(**changes: object) -> dict:
     return data
 
 
-def run(*args: str) -> subprocess.CompletedProcess:
-    return subprocess.run(list(args), capture_output=True, text=True, env=ENV)
+def run(*args: str, env: dict[str, str] = ENV) -> subprocess.CompletedProcess:
+    return subprocess.run(list(args), capture_output=True, text=True, env=env)
+
+
+def scratch(test: unittest.TestCase) -> Path:
+    home = Path(tempfile.mkdtemp(prefix="flow-setup-test-")).resolve()
+    test.addCleanup(shutil.rmtree, home)
+    return home
 
 
 class Repo:
     def __init__(self, test: unittest.TestCase) -> None:
-        self.home = Path(tempfile.mkdtemp(prefix="flow-setup-test-")).resolve()
-        test.addCleanup(shutil.rmtree, self.home)
+        self.home = scratch(test)
         self.root = self.home / "repo"
         self.root.mkdir()
         self.git("init", "-q")
+        top = run("git", "-C", str(self.root), "rev-parse", "--show-toplevel").stdout.strip()
+        if Path(top).resolve() != self.root:
+            raise AssertionError(f"git init did not make {self.root} a repository; refusing to commit into {top}")
         self.git("symbolic-ref", "HEAD", "refs/heads/main")
         self.git("-c", "user.name=test", "-c", "user.email=test@example.com", "commit", "-q", "--allow-empty", "-m", "init")
 
@@ -68,18 +77,21 @@ class Repo:
         path.write_text(data if isinstance(data, str) else json.dumps(data), encoding="utf-8")
         return run(sys.executable, str(SCRIPTS / "write_profile.py"), str(where or self.root), str(path), *flags)
 
-    def doctor(self, where: Path | None = None) -> subprocess.CompletedProcess:
-        return run(sys.executable, str(SCRIPTS / "doctor.py"), "repo", str(where or self.root))
+    def doctor(self, where: Path | None = None, env: dict[str, str] = ENV) -> subprocess.CompletedProcess:
+        return run(sys.executable, str(SCRIPTS / "doctor.py"), "repo", str(where or self.root), env=env)
 
     def text(self, rel: str) -> str:
         return (self.root / rel).read_bytes().decode("utf-8")
 
-    def snapshot(self) -> dict[str, bytes]:
-        return {
-            p.relative_to(self.root).as_posix(): p.read_bytes()
-            for p in sorted(self.root.rglob("*"))
-            if ".git" not in p.relative_to(self.root).parts and p.is_file()
-        }
+    def snapshot(self) -> dict[str, object]:
+        entries: dict[str, object] = {}
+        for folder, dirs, files in os.walk(self.root):
+            dirs[:] = sorted(d for d in dirs if Path(folder, d) != self.root / ".git")
+            for name in dirs + sorted(files):
+                path = Path(folder, name)
+                rel = path.relative_to(self.root).as_posix()
+                entries[rel] = f"-> {os.readlink(path)}" if path.is_symlink() else "dir" if path.is_dir() else path.read_bytes()
+        return entries
 
 
 class ProfileTest(unittest.TestCase):
@@ -307,6 +319,8 @@ class ProfileTest(unittest.TestCase):
             "labels": answers(labels={}),
             "ready_label": answers(ready_label=""),
             "base": answers(base="not a branch"),
+            "@{-1}": answers(base="@{-1}"),
+            "refs/heads/main": answers(base="refs/heads/main"),
             "linear_team": answers(tracker="linear"),
             "JSON object": "[]",
             "not valid JSON": "{",
@@ -341,6 +355,105 @@ class ProfileTest(unittest.TestCase):
         doctor = repo.doctor(where=inner)
         self.assertHealthy(doctor)
         self.assertIn(f"PASS git repository: {repo.root}\n", doctor.stdout)
+
+    def test_only_the_block_holds_a_setting_after_the_tracker_changes(self) -> None:
+        repo = Repo(self)
+        self.assertWrote(repo.write(answers(base="trunk", ready_label="agent-go")))
+        self.assertWrote(repo.write(answers(base="trunk", ready_label="agent-go", tracker="linear", linear_team="ENG")))
+        self.assertIn("| Closing reference | `Fixes ENG-<number>` |", repo.text("AGENTS.md"))
+        setting_values = ("Closes #<issue>", "Fixes ENG-<number>", "Closes <issue id>", "agent-go", "trunk")
+        for rel, content in repo.snapshot().items():
+            if rel != "AGENTS.md" and isinstance(content, bytes):
+                for value in setting_values:
+                    self.assertNotIn(value, content.decode("utf-8"), rel)
+        template = repo.text(".github/pull_request_template.md")
+        self.assertIn("Closing reference", template)
+        self.assertIn("AGENTS.md", template)
+
+    def test_doctor_warns_when_a_gate_runs_another_packages_script(self) -> None:
+        repo = Repo(self)
+        (repo.root / "package.json").write_text(json.dumps({"scripts": {}}), encoding="utf-8")
+        tools = repo.home / "bin"
+        tools.mkdir()
+        for tool in ("npm", "pnpm", "yarn", "bun"):
+            (tools / tool).write_text("#!/bin/sh\n", encoding="utf-8")
+            os.chmod(tools / tool, 0o755)
+        env = {**ENV, "PATH": f"{tools}{os.pathsep}{ENV.get('PATH', '')}"}
+        unchecked = (
+            "npm run lint --workspaces",
+            "npm run lint -w web",
+            "npm run lint --workspace=web",
+            "npm --prefix web run lint",
+            "npm run lint -C web",
+            "pnpm --filter web run lint",
+            "pnpm run lint -F web",
+            "pnpm -C web run lint",
+            "pnpm --dir=web run lint",
+            "pnpm -r run lint",
+            "yarn workspace web run lint",
+            "yarn workspaces foreach -A run lint",
+            "yarn --cwd web run lint",
+            "bun run --filter web lint",
+        )
+        for command in (*unchecked, "npm run lint -- --workspaces"):
+            with self.subTest(command=command):
+                self.assertWrote(repo.write(answers(commands={**answers()["commands"], "lint": command})))
+                status = "WARN" if command in unchecked else "FAIL"
+                self.assertRegex(repo.doctor(env=env).stdout, rf"(?m)^{status} gate lint: `{re.escape(command)}`")
+
+    def test_doctor_calls_a_link_stale_only_when_install_prunes_it(self) -> None:
+        home = scratch(self)
+        env = {**ENV, "CLAUDE_DIR": str(home / ".claude"), "CODEX_DIR": str(home / ".codex"), "AGENTS_DIR": str(home / ".agents")}
+        skills = home / ".claude" / "skills"
+
+        def install() -> None:
+            result = run("bash", str(KIT / "install.sh"), env=env)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        def skills_check() -> str:
+            out = run(sys.executable, str(SCRIPTS / "doctor.py"), "machine", env=env).stdout
+            return next(line for line in out.splitlines() if " Claude Code skills: " in line)
+
+        install()
+        os.symlink("/nonexistent/other-tool/skill", skills / "other-tool")
+        os.symlink(f"{KIT}/skills/flow-retired", skills / "flow-retired")
+        before = skills_check()
+        self.assertTrue(before.startswith("WARN "), before)
+        self.assertIn("flow-retired", before)
+        self.assertNotIn("other-tool", before)
+        install()
+        self.assertFalse(os.path.lexists(skills / "flow-retired"), "install.sh prunes a dangling link into the kit")
+        self.assertTrue((skills / "other-tool").is_symlink(), "install.sh leaves another tool's link alone")
+        after = skills_check()
+        self.assertTrue(after.startswith("PASS "), after)
+
+    def test_an_unusable_target_exits_2_and_writes_nothing(self) -> None:
+        def file_at(rel: str):
+            return lambda root: (root / rel).write_text("notes\n", encoding="utf-8")
+
+        def read_only(root: Path) -> None:
+            (root / "docs" / "agents").mkdir(parents=True)
+            os.chmod(root / "docs" / "agents", 0o555)
+            self.addCleanup(os.chmod, root / "docs" / "agents", 0o755)
+
+        def loop(root: Path) -> None:
+            os.symlink("CLAUDE.md", root / "AGENTS.md")
+            os.symlink("AGENTS.md", root / "CLAUDE.md")
+
+        cases = {"docs": file_at("docs"), ".github": file_at(".github"), "loop": loop}
+        if os.geteuid() != 0:
+            cases["docs/agents"] = read_only
+        for word, arrange in cases.items():
+            with self.subTest(case=word):
+                repo = Repo(self)
+                arrange(repo.root)
+                before = repo.snapshot()
+                for flags in (("--dry-run",), ()):
+                    result = repo.write(answers(), *flags)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+                    self.assertIn(word, result.stderr)
+                    self.assertEqual(repo.snapshot(), before)
 
 
 if __name__ == "__main__":

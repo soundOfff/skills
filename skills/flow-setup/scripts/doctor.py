@@ -63,7 +63,12 @@ PLACEHOLDER = re.compile(r"\{\{([^{}]+)\}\}")
 CLAUDE_IMPORT = re.compile(r"(?m)(?:^|\s)@(?:\./)?AGENTS\.md(?:\s|$)")
 TRACKER_TITLE = re.compile(r"^# Issue tracker: (GitHub|GitLab|Linear|Local)\s*$")
 ENV_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
-PACKAGE_MANAGERS = ("npm", "pnpm", "yarn", "bun")
+OTHER_PACKAGE_FLAGS = {
+    "npm": ("--workspace", "--workspaces", "-w", "-ws", "--prefix", "-C"),
+    "pnpm": ("--filter", "--filter-prod", "-F", "--dir", "-C", "--recursive", "-r"),
+    "yarn": ("workspace", "workspaces", "--cwd"),
+    "bun": ("--filter", "-F", "--workspaces", "--cwd"),
+}
 MAKEFILES = ("GNUmakefile", "makefile", "Makefile")
 MAKE_RULE = re.compile(r"^([^\s:#=][^:#=]*?)\s*::?(?![:=])")
 MAKE_INCLUDE = re.compile(r"^-?s?include\s", re.M)
@@ -116,7 +121,7 @@ def git_root(path: Path) -> tuple[Path | None, str]:
 
 
 def valid_branch(name: str) -> bool:
-    if not name or name.startswith("-"):
+    if not name or name.startswith(("-", "refs/")) or "@{" in name:
         return False
     return subprocess.run(["git", "check-ref-format", "--branch", name], capture_output=True).returncode == 0
 
@@ -311,10 +316,22 @@ def just_recipe(root: Path, name: str) -> tuple[str, str]:
     return "FAIL", f"{found} declares no recipe {name}"
 
 
+def package_declaration(words: list[str], root: Path) -> tuple[str, str] | None:
+    own = words[1 : words.index("--")] if "--" in words else words[1:]
+    if "run" not in own:
+        return None
+    elsewhere = next((w for w in own if w.split("=", 1)[0] in OTHER_PACKAGE_FLAGS[words[0]]), None)
+    if elsewhere:
+        return "WARN", f"{elsewhere} runs a script that another package declares, so the declaration could not be checked"
+    if own[0] == "run" and len(own) > 1 and not own[1].startswith("-"):
+        return package_script(root, own[1])
+    return None
+
+
 def declaration(words: list[str], root: Path) -> tuple[str, str] | None:
     runner = words[0]
-    if runner in PACKAGE_MANAGERS and len(words) > 2 and words[1] == "run" and not words[2].startswith("-"):
-        return package_script(root, words[2])
+    if runner in OTHER_PACKAGE_FLAGS:
+        return package_declaration(words, root)
     if runner in ("make", "just") and len(words) > 1 and not words[1].startswith("-") and "=" not in words[1]:
         return (make_target if runner == "make" else just_recipe)(root, words[1])
     return None
@@ -461,14 +478,8 @@ def check_links(label: str, dest: Path, sources: dict[str, Path], kit: Path) -> 
             missing.append(name)
         elif not entry.is_symlink() or entry.resolve() != src.resolve():
             wrong.append(name)
-    stale = []
-    if dest.is_dir():
-        for entry in sorted(dest.iterdir()):
-            if entry.is_symlink() and entry.name not in sources:
-                target = Path(os.readlink(entry))
-                target = target if target.is_absolute() else entry.parent / target
-                if not entry.exists() or kit in target.resolve().parents:
-                    stale.append(entry.name)
+    entries = sorted(dest.iterdir()) if dest.is_dir() else []
+    stale = [e.name for e in entries if e.is_symlink() and e.name not in sources and os.readlink(e).startswith(f"{kit}/")]
     if missing or wrong:
         parts = [f"{len(sources) - len(missing) - len(wrong)}/{len(sources)} linked into {dest}"]
         if missing:

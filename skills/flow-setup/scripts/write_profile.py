@@ -17,14 +17,16 @@ A path that resolves outside the repository is refused. An existing file keeps
 its line endings and mode. A new file gets mode 0666 minus the umask.
 
 Exit status is 2 when the repository, the answers, the markers, or a link are
-invalid. Nothing is written in that case. Runs on Python 3.9, the version macOS
-ships.
+invalid, or when a target cannot be written. Every target is resolved and
+checked before the first write, so nothing is written in that case. Runs on
+Python 3.9, the version macOS ships.
 """
 
 from __future__ import annotations
 
 import argparse
 import difflib
+import errno
 import json
 import os
 import sys
@@ -248,7 +250,30 @@ def ignored(text: str | None) -> str:
     return text + ("" if not text or text.endswith("\n") else eol) + ".flow/" + eol
 
 
+def probe(root: Path, rel: str) -> None:
+    path = root / rel
+    try:
+        os.stat(path)
+    except OSError as error:
+        if error.errno == errno.ELOOP:
+            where = f"{rel} -> {os.readlink(path)}" if path.is_symlink() else rel
+            raise ProfileError(f"{where} is a link loop; replace one of its links with a regular file")
+        if error.errno == errno.ENOTDIR:
+            blocker = next(p for p in reversed(Path(rel).parents) if (root / p).exists() and not (root / p).is_dir())
+            raise ProfileError(f"{rel} cannot be written, because {blocker.as_posix()} is not a folder")
+        if error.errno != errno.ENOENT:
+            raise
+
+
+def writable(path: Path) -> bool:
+    folder = path.parent
+    while not folder.exists():
+        folder = folder.parent
+    return os.access(folder, os.W_OK | os.X_OK)
+
+
 def locate(root: Path, rel: str) -> Target:
+    probe(root, rel)
     path = root / rel
     real = Path(os.path.realpath(path))
     if not real.is_relative_to(root):
@@ -365,12 +390,13 @@ def main() -> int:
         unknown = set(args.overwrite) - {c.rel for c in changes if c.asks}
         if unknown:
             raise ProfileError(f"--overwrite accepts only docs/agents/ files, got {sorted(unknown)}")
+        verbs = [action(change, args.overwrite) for change in changes]
+        blocked = [c.rel for c, verb in zip(changes, verbs) if verb in ("create", "update") and not writable(c.target.path)]
+        if blocked:
+            raise ProfileError(f"no permission to write {', '.join(blocked)}; make the folder writable and run again")
         if args.dry_run:
             print("dry run: nothing written")
-        verbs = []
-        for change in changes:
-            verb = action(change, args.overwrite)
-            verbs.append(verb)
+        for change, verb in zip(changes, verbs):
             print(describe(change, verb))
             if verb == "keep" or (args.dry_run and verb == "update"):
                 print(diff(change), end="")
