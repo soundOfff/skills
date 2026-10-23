@@ -9,7 +9,6 @@ Some skills in this kit are copied or adapted from other projects. Each project'
 | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | Copyright (c) 2026 OpenClaw Foundation | Adapted: `test-audit`. |
 | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | MIT | Copyright (c) 2026 Jakub Krehel | Vendored: `better-ui`, `better-interface`. |
 | [jakubkrehel/make-interfaces-feel-better](https://github.com/jakubkrehel/make-interfaces-feel-better) | MIT | Copyright (c) 2026 Jakub Krehel | Vendored: `make-interfaces-feel-better`. |
-| [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT | Copyright (c) 2026 Emil Kowalski | Vendored: `apple-design`. |
 | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | MIT | Copyright (c) 2025 | Vendored: `test-master`. |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 | See `vendor/skills/impeccable/LICENSE` | Vendored: `impeccable`. |
 | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | Apache-2.0 | See `vendor/skills/frontend-design/LICENSE.txt` | Vendored: `frontend-design`. |

@@ -101,7 +101,6 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 
 | Skill | What it does | Invoked by | Upstream |
 | --- | --- | --- | --- |
-| `apple-design` | Apple's approach to interface design and fluid, physical motion, translated for the web. | you or the agent | [emilkowalski/skills](https://github.com/emilkowalski/skills) |
 | `better-interface` | Combines all of the `better-*` skills into a single review across accessibility, layout, writing, typography, color and UI polish. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
 | `better-ui` | Polishes and improves the UI in your project. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
 | `frontend-design` | Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. | you or the agent | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) |

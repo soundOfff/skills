@@ -1,15 +1,6 @@
 {
   "version": 3,
   "skills": {
-    "apple-design": {
-      "source": "emilkowalski/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/emilkowalski/skills.git",
-      "skillPath": "skills/apple-design/SKILL.md",
-      "skillFolderHash": "cd509ae729c86487d352e17a26651217a4c25711",
-      "installedAt": "2026-09-22T17:39:05.728Z",
-      "updatedAt": "2026-09-22T17:39:05.728Z"
-    },
     "better-interface": {
       "source": "jakubkrehel/skills",
       "sourceType": "github",
