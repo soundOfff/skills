@@ -293,6 +293,7 @@ def check_agents() -> set[str]:
 
 
 MACOS_PYTHON = pathlib.Path("/usr/bin/python3")
+TOOL_TESTS = ROOT / "tools" / "tests"
 
 
 def check_script_tests() -> None:
@@ -311,6 +312,11 @@ def check_script_tests() -> None:
             r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
             if r.returncode != 0:
                 errors.append(f"{rel(suite.parent)} failed under {python}:\n{(r.stdout + r.stderr).strip()[-2000:]}")
+    if (TOOL_TESTS / "__init__.py").is_file():
+        cmd = [sys.executable, "-m", "unittest", "discover", "-s", str(TOOL_TESTS), "-t", str(ROOT / "tools")]
+        r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+        if r.returncode != 0:
+            errors.append(f"tools/tests failed under {sys.executable}:\n{(r.stdout + r.stderr).strip()[-2000:]}")
 
 
 def check_generated() -> None:

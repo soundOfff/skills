@@ -26,6 +26,26 @@ Then install pstack in each tool:
 
 `/flow-setup machine` runs the installer and checks every item above.
 
+### Optional: route skills with Jev
+
+`tools/skill_router.py` is a `UserPromptSubmit` hook for Claude Code. On each prompt it asks Jev, TypeSafe's choice model, which skill fits. Jev chooses from the skill listing Claude Code gave the model. When Jev is confident and the skill is not loaded yet, the hook adds one line of advice. It needs Python 3.11 or later.
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...    # or TYPESAFE_API_KEY, in the shell that starts Claude Code
+python3 tools/skill_router.py ask "the build is throwing after the deploy"
+python3 tools/skill_router.py install --under ~/Tomi
+python3 tools/skill_router.py score
+python3 tools/skill_router.py install --remove
+```
+
+`ask` makes one live call. It prints the provider, the catalog, the request size, Jev's answer, and the exact line the model would see. When something is missing, it exits 1 and names the fix.
+
+`install` adds the hook to `~/.claude/settings.json`, and a second run changes nothing. `--dry-run` prints the change without writing it. Each routed prompt leaves the machine, because the hook sends the prompt text and the skill listing to the provider. `--under` limits routing to prompts started inside that folder. Use it if you also work in employer repositories. Without `--under`, the hook routes prompts from every folder.
+
+`score` compares Jev's picks with the skills the agent loaded. It reads the decision log in `~/.claude/skill-router/decisions.jsonl`. One session in five is a holdout, where the hook asks Jev but stays quiet, so the report shows what the advice changed. `score --replay 40` asks Jev about your 40 newest past prompts, which gives a baseline before you install. To silence the hook without removing it, unset the key.
+
+The router sees the same descriptions the model sees, so at the default `skillListingBudgetFraction` of 1% it gets the shortened ones. Filling them from the `SKILL.md` files is a follow-up.
+
 ## Set up a repository
 
 Run `/flow-setup` inside the repository. It detects the stack, the issue tracker, the domain docs, and the design authority, asks only what it cannot detect, and writes:
