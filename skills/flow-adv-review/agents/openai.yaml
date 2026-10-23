@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow Adversarial Review"
+  short_description: "Challenge a change in a clean reviewer process"
+policy:
+  allow_implicit_invocation: false
