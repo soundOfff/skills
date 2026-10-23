@@ -147,9 +147,11 @@ Require `status: approved`, or `publishing` or `partial` when resuming.
 Reconcile before any tracker write, on the first run and on every resume:
 
 - Re-read every item already recorded in **Published issues**.
-- Search the tracker for this plan's draft markers. When its search cannot
-  match them, list the items created since `approved_at` and read their bodies.
-  Record each found item that has no row yet.
+- List the items the authenticated actor created since `approved_at`, read
+  their bodies, and match this plan's draft markers. A tracker search for the
+  markers can find them faster, but an empty search result proves nothing,
+  because search indexes lag behind writes. Record each found item that has no
+  row yet.
 - Repeat duplicate reconciliation. An item that carries this plan's marker is
   this plan's own, not a duplicate.
 - Two items with the same marker are an unrepaired result. Record both under

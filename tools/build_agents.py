@@ -58,7 +58,7 @@ def render(meta: dict[str, str], body: str) -> dict[pathlib.Path, str]:
 
 
 def orphans(names: set[str]) -> list[pathlib.Path]:
-    generated = list((ROOT / "agents" / "codex").glob("*.toml"))
+    generated = list((ROOT / "agents" / "codex").glob("flow-*.toml"))
     generated += list((ROOT / "agents" / "claude").glob("flow-*.md"))
     return [p for p in generated if p.stem not in names]
 

@@ -30,8 +30,8 @@ Then install pstack in each tool:
 
 Run `/flow-setup` inside the repository. It detects the stack, the issue tracker, the domain docs, and the design authority, asks only what it cannot detect, and writes:
 
-- a managed block in `AGENTS.md` with the repository's gates and its sources of truth;
-- `docs/agents/` standards for tickets, pull requests, the issue tracker, domain docs, and triage labels;
+- a managed block in `AGENTS.md` with the repository's settings, gates, and sources of truth;
+- `docs/agents/` standards for tickets, pull requests, the issue tracker, and domain docs;
 - `.flow/` in `.gitignore`, where the workflow keeps its ledgers;
 - a pull request template on GitHub and GitLab.
 

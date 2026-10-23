@@ -30,8 +30,12 @@ Only the coordinating skill writes its ledger. Dispatched workers return evidenc
 `.flow/` means one folder that every worktree of the repository shares: the git-ignored `.flow/` folder at the root of the main worktree. Resolve it from any worktree with:
 
 ```bash
-echo "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.flow"
+common="$(git rev-parse --path-format=absolute --git-common-dir)"
+if [ "$(basename "$common")" = .git ]; then root="$(dirname "$common")"; else root="$(git rev-parse --show-toplevel)"; fi
+echo "$root/.flow"
 ```
+
+The common git folder sits inside the main worktree only when it is named `.git`. A bare clone with worktrees, a submodule, or a separate git dir keeps it elsewhere, so the ledgers then live at the top of the current checkout.
 
 Every stage reads and writes its ledgers there, whichever worktree it runs in. `/flow-adv-review` is the exception. It keeps its jobs in the current worktree's `.flow/reviews/`, because a job reviews one working tree.
 

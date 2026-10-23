@@ -7,7 +7,10 @@ graph, integration, and commits.
 
 ## Before writing code
 
-- When the dispatch names an `Engine`, read that `SKILL.md` in full first and follow it.
+- When the dispatch names an `Engine`, read that `SKILL.md` in full first and
+  apply its principles and code rules. The coordinator owns the playbook, the
+  commits, and publishing, so never pick a playbook, commit, push, or open a
+  pull request. Where the Engine and this file disagree, this file wins.
 - Read `AGENTS.md`, the dispatched issue pointer, and the assignment. The newest
   explicit human scoping comment is binding.
 - Confirm the completion criterion, owned paths, prohibited overlaps, reuse
