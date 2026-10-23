@@ -4,10 +4,10 @@ python3 tools/readme_catalog.py          rewrite the block between the catalog m
 python3 tools/readme_catalog.py --check  exit 1 when the block is stale
 """
 
-import json
 import pathlib
 import re
 import sys
+import tomllib
 
 from validate import frontmatter_scalars
 
@@ -26,15 +26,21 @@ def summary(desc: str) -> str:
     return first.replace("|", "\\|")
 
 
-def rows(paths: list[pathlib.Path], source: dict[str, str] | None = None) -> list[str]:
+def rows(paths: list[pathlib.Path]) -> list[str]:
     out = []
     for d in paths:
         fm = frontmatter_scalars((d / "SKILL.md").read_text(encoding="utf-8")) or {}
         how = "you type it" if fm.get("disable-model-invocation") == "true" else "you or the agent"
-        cells = [f"`{d.name}`", summary(fm.get("description", "")), how]
-        if source is not None:
-            cells.append(source.get(d.name, "unknown"))
-        out.append("| " + " | ".join(cells) + " |")
+        out.append(f"| `{d.name}` | {summary(fm.get('description', ''))} | {how} |")
+    return out
+
+
+def pinned_rows() -> list[str]:
+    manifest = tomllib.loads((ROOT / "agents.toml").read_text(encoding="utf-8"))
+    out = []
+    for s in sorted(manifest.get("skills", []), key=lambda s: s["name"]):
+        repo = f"https://github.com/{s['source']}"
+        out.append(f"| [`{s['name']}`]({repo}/tree/{s['ref']}/{s['path']}) | [{s['source']}]({repo}) | `{s['ref'][:12]}` |")
     return out
 
 
@@ -45,14 +51,11 @@ def render() -> str:
         key=lambda p: (FLOW_ORDER.index(p.name) if p.name in FLOW_ORDER else len(FLOW_ORDER), p.name),
     )
     own = [p for p in first_party if not p.name.startswith("flow-")]
-    vendor = [p for p in sorted((ROOT / "vendor" / "skills").iterdir()) if (p / "SKILL.md").is_file()]
-    lock = json.loads((ROOT / "vendor" / "skills.lock.json").read_text())["skills"]
-    upstream = {name: f"[{e['source']}](https://github.com/{e['source']})" for name, e in lock.items()}
     head = ["| Skill | What it does | Invoked by |", "| --- | --- | --- |"]
     lines = [BEGIN, "", "### Delivery workflow", "", *head, *rows(flow), ""]
     lines += ["### Everyday skills", "", *head, *rows(own), ""]
-    lines += ["### Vendored", "", "| Skill | What it does | Invoked by | Upstream |",
-              "| --- | --- | --- | --- |", *rows(vendor, upstream), "", END]
+    lines += ["### Third-party", "", "Pinned in [agents.toml](agents.toml) and fetched by `install.sh`.", "",
+              "| Skill | Upstream | Pinned commit |", "| --- | --- | --- |", *pinned_rows(), "", END]
     return "\n".join(lines)
 
 

@@ -4,7 +4,7 @@ python3 tools/skill_usage.py         only skills that live in this repo
 python3 tools/skill_usage.py --all   every slash command and skill seen
 """
 
-import collections, datetime as dt, glob, json, os, pathlib, re, sys
+import collections, datetime as dt, glob, json, os, pathlib, re, sys, tomllib
 
 HOME = os.path.expanduser("~")
 NOW = dt.datetime.now(dt.timezone.utc)
@@ -138,9 +138,10 @@ codex()
 cursor()
 
 repo = pathlib.Path(__file__).resolve().parent.parent
-known = None if "--all" in sys.argv else {
-    d.parent.name for d in list(repo.glob("skills/*/SKILL.md")) + list(repo.glob("vendor/skills/*/SKILL.md"))
-}
+known = None if "--all" in sys.argv else (
+    {d.parent.name for d in repo.glob("skills/*/SKILL.md")}
+    | {s["name"] for s in tomllib.loads((repo / "agents.toml").read_text(encoding="utf-8")).get("skills", [])}
+)
 table = collections.defaultdict(lambda: collections.Counter())
 projects = collections.defaultdict(collections.Counter)
 for harness, kind, name, when, project in events:

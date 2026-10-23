@@ -15,7 +15,7 @@ cd ~/Tomi/personal-skills
 ./install.sh
 ```
 
-`install.sh` symlinks every skill into `~/.claude/skills` and `~/.codex/skills`, and the role agents into `~/.claude/agents` and `~/.codex/agents`. It moves anything real it would replace into `.install-backup/`, removes links to skills that no longer exist, and changes nothing on a second run.
+`install.sh` fetches the third-party skills pinned in [agents.toml](agents.toml) into `.agents/skills`, then symlinks every skill into `~/.claude/skills` and `~/.codex/skills`, and the role agents into `~/.claude/agents` and `~/.codex/agents`. It moves anything real it would replace into `.install-backup/`, removes links to skills that no longer exist, and changes nothing on a second run. Fetching needs Node 20 or later, and `--no-fetch` links only what is already fetched.
 
 Then install pstack in each tool:
 
@@ -34,7 +34,7 @@ Run `/flow-setup` inside the repository. It detects the stack, the issue tracker
 - `docs/agents/` standards for tickets, pull requests, the issue tracker, and domain docs;
 - `.flow/` in `.gitignore`, where the workflow keeps its ledgers;
 - a pull request template on GitHub and GitLab;
-- optionally a first `DESIGN.md` for a repository with a user interface, built from the code or seeded from five questions with the vendored `impeccable` skill, or pasted, for example from Google Stitch.
+- optionally a first `DESIGN.md` for a repository with a user interface, built from the code or seeded from five questions with the `impeccable` skill, or pasted, for example from Google Stitch.
 
 A doctor script then checks the result. Running `/flow-setup` again rewrites the managed block and asks before it replaces any changed `docs/agents/` file.
 
@@ -97,25 +97,27 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 | `test-audit` | Invoke whenever writing, changing, reviewing, or sweeping tests. | you or the agent |
 | `whats-next` | Suggests the 3 most impactful next actions from the developer's full context: git, open pull requests and review requests, the issue tracker, flow ledgers waiting on their next stage, and the current conversation. | you type it |
 
-### Vendored
+### Third-party
 
-| Skill | What it does | Invoked by | Upstream |
-| --- | --- | --- | --- |
-| `better-accessibility` | Reviews and fixes keyboard and focus behavior, ARIA, accessible names, forms, screen-reader announcements, motion and zoom in your project against WCAG 2.2. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `better-colors` | Helps you build and check a color system for your project. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `better-interface` | Combines all of the `better-*` skills into a single review across accessibility, layout, writing, typography, color and UI polish. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `better-layout` | Helps with grouping, alignment, reading order, responsive structure and room for translated text, so a layout holds up when it is resized, translated or mirrored. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `better-typography` | Sets and reviews how text renders in your product, from the type scale and spacing to font features, wrapping, truncation and punctuation. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `better-ui` | Polishes and improves the UI in your project. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `better-writing` | Writes and reviews your interface copy, from labels and errors to empty states and confirmations, so it matches your product's voice and tells people what to do next. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
-| `frontend-design` | Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. | you or the agent | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) |
-| `grill-me` | A relentless interview to sharpen a plan or design. | you type it | [mattpocock/skills](https://github.com/mattpocock/skills) |
-| `grill-with-docs` | A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go. | you type it | [mattpocock/skills](https://github.com/mattpocock/skills) |
-| `handoff` | Compact the current conversation into a handoff document for another agent to pick up. | you type it | [mattpocock/skills](https://github.com/mattpocock/skills) |
-| `impeccable` | Use when the user wants to design, redesign, shape, critique, audit, polish, clarify, distill, harden, optimize, adapt, animate, colorize, extract, or otherwise improve a frontend interface. | you or the agent | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) |
-| `make-interfaces-feel-better` | Design engineering principles for making interfaces feel polished. | you or the agent | [jakubkrehel/make-interfaces-feel-better](https://github.com/jakubkrehel/make-interfaces-feel-better) |
-| `resolving-merge-conflicts` | Use when you need to resolve an in-progress git merge/rebase conflict. | you or the agent | [mattpocock/skills](https://github.com/mattpocock/skills) |
-| `test-master` | Generates test files, creates mocking strategies, analyzes code coverage, designs test architectures, and produces test plans and defect reports across functional, performance, and security testing disciplines. | you or the agent | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) |
+Pinned in [agents.toml](agents.toml) and fetched by `install.sh`.
+
+| Skill | Upstream | Pinned commit |
+| --- | --- | --- |
+| [`better-accessibility`](https://github.com/jakubkrehel/skills/tree/4650b9c0300852b59be163649926424fe990df9a/skills/better-accessibility) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `4650b9c03008` |
+| [`better-colors`](https://github.com/jakubkrehel/skills/tree/9b03828ccb64a1093334c0e4a5c1aa1c86d7241f/skills/better-colors) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `9b03828ccb64` |
+| [`better-interface`](https://github.com/jakubkrehel/skills/tree/267330e1adfc66a718fb65fa6918c1f06d0a689e/skills/better-interface) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `267330e1adfc` |
+| [`better-layout`](https://github.com/jakubkrehel/skills/tree/da5f6d59741e93cf9d36a67179f42d33f2cbb452/skills/better-layout) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `da5f6d59741e` |
+| [`better-typography`](https://github.com/jakubkrehel/skills/tree/4650b9c0300852b59be163649926424fe990df9a/skills/better-typography) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `4650b9c03008` |
+| [`better-ui`](https://github.com/jakubkrehel/skills/tree/267330e1adfc66a718fb65fa6918c1f06d0a689e/skills/better-ui) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `267330e1adfc` |
+| [`better-writing`](https://github.com/jakubkrehel/skills/tree/da5f6d59741e93cf9d36a67179f42d33f2cbb452/skills/better-writing) | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | `da5f6d59741e` |
+| [`frontend-design`](https://github.com/anthropics/claude-plugins-official/tree/44490cccaf6d9f82fdeec9416fbf7c9bd72575dc/plugins/frontend-design/skills/frontend-design) | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | `44490cccaf6d` |
+| [`grill-me`](https://github.com/mattpocock/skills/tree/697d4ce9742da558fd1ba6697c8e9775e2e302dd/skills/productivity/grill-me) | [mattpocock/skills](https://github.com/mattpocock/skills) | `697d4ce9742d` |
+| [`grill-with-docs`](https://github.com/mattpocock/skills/tree/697d4ce9742da558fd1ba6697c8e9775e2e302dd/skills/engineering/grill-with-docs) | [mattpocock/skills](https://github.com/mattpocock/skills) | `697d4ce9742d` |
+| [`handoff`](https://github.com/mattpocock/skills/tree/697d4ce9742da558fd1ba6697c8e9775e2e302dd/skills/productivity/handoff) | [mattpocock/skills](https://github.com/mattpocock/skills) | `697d4ce9742d` |
+| [`impeccable`](https://github.com/pbakaus/impeccable/tree/0760cdf3e907e7c96bb6524ac58933f5ffca4782/.agents/skills/impeccable) | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | `0760cdf3e907` |
+| [`make-interfaces-feel-better`](https://github.com/jakubkrehel/make-interfaces-feel-better/tree/384562064fcdd99778fcbafd8729626fe6aab02f/skills/make-interfaces-feel-better) | [jakubkrehel/make-interfaces-feel-better](https://github.com/jakubkrehel/make-interfaces-feel-better) | `384562064fcd` |
+| [`resolving-merge-conflicts`](https://github.com/mattpocock/skills/tree/697d4ce9742da558fd1ba6697c8e9775e2e302dd/skills/engineering/resolving-merge-conflicts) | [mattpocock/skills](https://github.com/mattpocock/skills) | `697d4ce9742d` |
+| [`test-master`](https://github.com/Jeffallan/claude-skills/tree/3ba746ec95b30aba3c43ff4180f5146405ba253c/skills/test-master) | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | `3ba746ec95b3` |
 
 <!-- catalog:end -->
 
@@ -130,4 +132,23 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 - `python3 tools/build_agents.py` renders `agents/roles/` into the Claude Code and Codex agent formats.
 - `python3 tools/readme_catalog.py` rebuilds the skill tables above.
 
-[AGENTS.md](AGENTS.md) has the rules for editing the kit. [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) lists the upstream projects and their licenses. Skills removed in the October 2026 cleanup are still in git history, for example `git show 4da67ef:vendor/skills/<name>/SKILL.md`.
+[AGENTS.md](AGENTS.md) has the rules for editing the kit. [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) lists the projects the kit's own skills adapt, and their licenses. Skills removed in the October 2026 cleanup are still in git history, for example `git show 4da67ef:vendor/skills/<name>/SKILL.md`.
+
+### Third-party skills
+
+[agents.toml](agents.toml) is the kit's `package.json` for skills. Each entry pins one upstream skill to a commit:
+
+```toml
+[[skills]]
+name = "impeccable"
+source = "pbakaus/impeccable"
+ref = "0760cdf3e907e7c96bb6524ac58933f5ffca4782"
+path = ".agents/skills/impeccable"
+```
+
+`./install.sh` fetches every entry with [dotagents](https://github.com/getsentry/dotagents) and links it next to the kit's own skills. The fetched folders and dotagents' `agents.lock` stay out of git, so `agents.toml` is the only record. `python3 tools/validate.py` rejects a `ref` that is not a full commit SHA, because dotagents fetches a branch or tag fresh on every install.
+
+- **Add a skill.** Append an entry with the skill's folder as `path` and a full commit SHA as `ref`, then run `./install.sh`.
+- **Update a skill.** Set `ref` to a newer commit and run `./install.sh`. `gh api 'repos/<source>/commits?path=<path>&per_page=1' --jq '.[0].sha'` prints the newest commit that changed the skill.
+- **Remove a skill.** Delete its entry and run `./install.sh`, which removes its links.
+- **Change a skill.** Copy it into `skills/` under the same name and delete its entry. The kit owns the copy from then on.

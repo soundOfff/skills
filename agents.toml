@@ -1,0 +1,96 @@
+# Third-party skills, each pinned to an upstream commit. ./install.sh fetches them
+# into .agents/skills with dotagents and links them into Claude Code and Codex.
+# Pin every ref to a full commit SHA. dotagents re-resolves branches and tags on
+# every install, and its agents.lock only records what it fetched.
+version = 1
+
+[[skills]]
+name = "better-accessibility"
+source = "jakubkrehel/skills"
+ref = "4650b9c0300852b59be163649926424fe990df9a"
+path = "skills/better-accessibility"
+
+[[skills]]
+name = "better-colors"
+source = "jakubkrehel/skills"
+ref = "9b03828ccb64a1093334c0e4a5c1aa1c86d7241f"
+path = "skills/better-colors"
+
+[[skills]]
+name = "better-interface"
+source = "jakubkrehel/skills"
+ref = "267330e1adfc66a718fb65fa6918c1f06d0a689e"
+path = "skills/better-interface"
+
+[[skills]]
+name = "better-layout"
+source = "jakubkrehel/skills"
+ref = "da5f6d59741e93cf9d36a67179f42d33f2cbb452"
+path = "skills/better-layout"
+
+[[skills]]
+name = "better-typography"
+source = "jakubkrehel/skills"
+ref = "4650b9c0300852b59be163649926424fe990df9a"
+path = "skills/better-typography"
+
+[[skills]]
+name = "better-ui"
+source = "jakubkrehel/skills"
+ref = "267330e1adfc66a718fb65fa6918c1f06d0a689e"
+path = "skills/better-ui"
+
+[[skills]]
+name = "better-writing"
+source = "jakubkrehel/skills"
+ref = "da5f6d59741e93cf9d36a67179f42d33f2cbb452"
+path = "skills/better-writing"
+
+[[skills]]
+name = "frontend-design"
+source = "anthropics/claude-plugins-official"
+ref = "44490cccaf6d9f82fdeec9416fbf7c9bd72575dc"
+path = "plugins/frontend-design/skills/frontend-design"
+
+[[skills]]
+name = "grill-me"
+source = "mattpocock/skills"
+ref = "697d4ce9742da558fd1ba6697c8e9775e2e302dd"
+path = "skills/productivity/grill-me"
+
+[[skills]]
+name = "grill-with-docs"
+source = "mattpocock/skills"
+ref = "697d4ce9742da558fd1ba6697c8e9775e2e302dd"
+path = "skills/engineering/grill-with-docs"
+
+[[skills]]
+name = "handoff"
+source = "mattpocock/skills"
+ref = "697d4ce9742da558fd1ba6697c8e9775e2e302dd"
+path = "skills/productivity/handoff"
+
+[[skills]]
+name = "impeccable"
+source = "pbakaus/impeccable"
+ref = "0760cdf3e907e7c96bb6524ac58933f5ffca4782"
+path = ".agents/skills/impeccable"
+
+[[skills]]
+name = "make-interfaces-feel-better"
+source = "jakubkrehel/make-interfaces-feel-better"
+ref = "384562064fcdd99778fcbafd8729626fe6aab02f"
+path = "skills/make-interfaces-feel-better"
+
+# Upstream removed this skill on 2026-09-24.
+[[skills]]
+name = "resolving-merge-conflicts"
+source = "mattpocock/skills"
+ref = "697d4ce9742da558fd1ba6697c8e9775e2e302dd"
+path = "skills/engineering/resolving-merge-conflicts"
+
+[[skills]]
+name = "test-master"
+source = "Jeffallan/claude-skills"
+ref = "3ba746ec95b30aba3c43ff4180f5146405ba253c"
+path = "skills/test-master"
