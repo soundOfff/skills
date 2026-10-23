@@ -78,7 +78,7 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 | `flow-code-check` | Produce an optional consolidated correctness and solution-quality review for a pinned change. | you or the agent |
 | `flow-code-review` | Correctness-review a pinned change (behavior, spec, regressions, security) as flow-code-check's correctness worker. | you or the agent |
 | `flow-code-quality-review` | Quality-review a pinned change (reuse, decomposition, maintainability) as flow-code-check's quality worker. | you or the agent |
-| `flow-design-check` | Produce an optional design-drift review for a pinned UI change. | you or the agent |
+| `flow-design-check` | Produce an optional two-axis design review for a pinned UI change, design drift against the repository's design authority and universal visual antipatterns in the rendered result. | you or the agent |
 | `flow-adv-review` | Adversarially challenge a working-tree or branch diff in a fresh reviewer process when a developer explicitly requests it. | you type it |
 | `flow-subagent` | Spawn one flow role subagent and supervise it to completion. | you or the agent |
 | `flow-tdd` | Test-drive executable behavior through public seams with a red, green, refactor loop. | you or the agent |
