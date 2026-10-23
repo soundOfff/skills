@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow Setup"
+  short_description: "Set up a repository or this machine for the flow kit"
+policy:
+  allow_implicit_invocation: false
