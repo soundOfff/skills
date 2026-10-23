@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow Mode"
+  short_description: "poteto-mode plus the flow delivery workflow"
+policy:
+  allow_implicit_invocation: false

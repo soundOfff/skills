@@ -1,49 +1,54 @@
 ---
-title: Defer Non-Critical Third-Party Libraries
+title: Defer Optional Heavy Features
 impact: CRITICAL
-impactDescription: loads after hydration
-tags: bundle, third-party, analytics, defer
+impactDescription: keeps optional code out of the initial chunk
+tags: bundle, third-party, dynamic-import, code-splitting
 ---
 
-## Defer Non-Critical Third-Party Libraries
+## Defer Optional Heavy Features
 
-Analytics, logging, and error tracking don't block user interaction. Load them after hydration.
+Use a dynamic import for code the first screen does not need: document editors,
+export renderers, optional analytics, and other heavy interactions that begin
+after a route or user action. In a client-rendered app, the useful boundary is a
+route, component, or event. In a server-rendered app, optional client-only
+widgets can also load after hydration (`next/dynamic` with `ssr: false`, see
+`bundle-dynamic-imports`).
 
-**Incorrect (blocks initial bundle):**
+Keep boot-critical integrations eager. Error tracking initializes before the
+application so startup failures are captured. Authentication, route
+construction, and the application shell also belong to the initial path.
+
+**Eager optional feature:**
 
 ```tsx
-import { Analytics } from '@vercel/analytics/react'
+import { RichSectionEditor } from "./rich-section-editor";
 
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        {children}
-        <Analytics />
-      </body>
-    </html>
-  )
+export function DocumentSection() {
+  return <RichSectionEditor />;
 }
 ```
 
-**Correct (loads after hydration):**
+**Deferred optional feature with a named export:**
 
 ```tsx
-import dynamic from 'next/dynamic'
+import { lazy, Suspense } from "react";
 
-const Analytics = dynamic(
-  () => import('@vercel/analytics/react').then(m => m.Analytics),
-  { ssr: false }
-)
+const RichSectionEditor = lazy(() =>
+  import("./rich-section-editor").then((module) => ({
+    default: module.RichSectionEditor,
+  })),
+);
 
-export default function RootLayout({ children }) {
+export function DocumentSection() {
   return (
-    <html>
-      <body>
-        {children}
-        <Analytics />
-      </body>
-    </html>
-  )
+    <Suspense fallback={<EditorSkeleton />}>
+      <RichSectionEditor />
+    </Suspense>
+  );
 }
 ```
+
+Confirm that the import creates a separate production chunk and that its
+fallback preserves the established loading design. Deferral is a failure when
+the feature is above the fold, creates a request waterfall, or delays error
+capture.

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Flow Subagent"
+  short_description: "Spawn and supervise one flow role subagent"

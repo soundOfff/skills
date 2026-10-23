@@ -9,6 +9,8 @@ tags: advanced, hooks, useLatest, refs, optimization
 
 Access latest values in callbacks without adding them to dependency arrays. Prevents effect re-runs while avoiding stale closures.
 
+On React 19.2 or later, use `useEffectEvent` instead (`rerender-useeffect-function-calls`). Keep `useLatest` for React versions without Effect Events.
+
 **Implementation:**
 
 ```typescript

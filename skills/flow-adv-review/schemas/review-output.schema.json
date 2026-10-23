@@ -1,0 +1,175 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["review"],
+  "properties": {
+    "review": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["verdict", "summary", "findings", "next_steps"],
+          "properties": {
+            "verdict": {
+              "type": "string",
+              "const": "approve"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "findings": {
+              "type": "array",
+              "maxItems": 0,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "severity",
+                  "title",
+                  "body",
+                  "file",
+                  "line_start",
+                  "line_end",
+                  "confidence",
+                  "recommendation"
+                ],
+                "properties": {
+                  "severity": {
+                    "type": "string",
+                    "enum": ["critical", "high", "medium", "low"]
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "file": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "line_start": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "line_end": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Must be greater than or equal to line_start"
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "recommendation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            },
+            "next_steps": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["verdict", "summary", "findings", "next_steps"],
+          "properties": {
+            "verdict": {
+              "type": "string",
+              "const": "needs-attention"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "findings": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "severity",
+                  "title",
+                  "body",
+                  "file",
+                  "line_start",
+                  "line_end",
+                  "confidence",
+                  "recommendation"
+                ],
+                "properties": {
+                  "severity": {
+                    "type": "string",
+                    "enum": ["critical", "high", "medium", "low"]
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "file": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "line_start": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "line_end": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Must be greater than or equal to line_start"
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "recommendation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            },
+            "next_steps": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,115 @@
+# UI Prototype
+
+Generate **several radically different UI variations** on a single route, switchable from a floating bottom bar. The user flips between variants in the browser, picks one (or takes parts from each), then throws the rest away.
+
+If the question is about logic or state rather than what something looks like, this is the wrong branch. Use [LOGIC.md](LOGIC.md).
+
+## When this is the right shape
+
+- "What should this page look like?"
+- "I want to see a few options for this dashboard before committing."
+- "Try a different layout for the settings screen."
+- Any time the user would otherwise spend a day picking between three vague mockups in their head.
+
+## Two sub-shapes, and a strong preference for sub-shape A
+
+A UI prototype is much easier to judge when it sits **inside the rest of the app**, with the real header, real sidebar, real data, and real density. A throwaway route on its own has none of that, so every variant looks fine in isolation. Default to sub-shape A whenever there's a plausible existing page to host the variants. Only reach for sub-shape B if the prototype genuinely has no nearby home.
+
+### Sub-shape A. Adjust an existing page (preferred)
+
+The route already exists. Variants are rendered **on the same route**, gated by a `?variant=` URL search param. The existing data fetching, params, and auth all stay. Only the rendering swaps. This is the default. Pick it unless there's a specific reason not to.
+
+If the prototype is for something that doesn't yet have a page but *would naturally live inside one* (a new section of the dashboard, a new card on the settings screen, a new step in an existing flow), that's still sub-shape A. Mount the variants inside the host page.
+
+### Sub-shape B. A new page (last resort)
+
+Only use this when the thing being prototyped genuinely has no existing page to live inside, for example an entirely new top-level area, or a flow that can't be embedded anywhere sensible.
+
+Create a **throwaway route** following whatever routing convention the project already uses. Don't invent a new top-level structure. Name it so it's obviously a prototype (for example, include the word `prototype` in the path or filename). Use the same `?variant=` pattern.
+
+Before committing to sub-shape B, check that there really is no existing page this could be embedded in. An empty route hides design problems that a populated one would expose.
+
+In both sub-shapes the floating bottom bar is identical.
+
+## Process
+
+### 1. State the question and pick N
+
+Default to **3 variants**. More than 5 stops being radically different and starts being noise, so cap there.
+
+Write down the plan in one line, in the prototype's location or a top-of-file comment:
+
+> "Three variants of the settings page, switchable via `?variant=`, on the existing settings route."
+
+This works whether the user is here to push back or not.
+
+### 2. Generate radically different variants
+
+Draft each variant. Hold each one to:
+
+- The page's purpose and the data it has access to.
+- The project's component library or styling system (TailwindCSS, shadcn, MUI, plain CSS, or whatever it uses).
+- A clear exported component name, for example `VariantA`, `VariantB`, `VariantC`.
+
+Variants must be **structurally different**, with a different layout, a different information hierarchy, and a different primary affordance, not just different colours. Three slightly tweaked card grids are not a UI prototype. If two drafts come out too similar, redo one with explicit "do not use a card grid" guidance.
+
+### 3. Wire them together
+
+Create a single switcher component on the route:
+
+```tsx
+// pseudo-code, adapt to the project's framework
+const variant = searchParams.get('variant') ?? 'A';
+return (
+  <>
+    {variant === 'A' && <VariantA {...data} />}
+    {variant === 'B' && <VariantB {...data} />}
+    {variant === 'C' && <VariantC {...data} />}
+    <PrototypeSwitcher variants={['A','B','C']} current={variant} />
+  </>
+);
+```
+
+For sub-shape A (existing page), keep all the existing data fetching above the switcher. Only the rendered subtree changes per variant.
+
+For sub-shape B (new page), add an obviously throwaway route beside the nearest
+owning route, following the project's routing convention. The route path comes
+from that location in the product. A prototype never claims a fixed top-level
+namespace.
+
+### 4. Build the floating switcher
+
+A small fixed-position bar at the bottom-centre of the screen with three pieces:
+
+- **Left arrow.** Cycles to the previous variant (wraps around).
+- **Variant label.** Shows the current variant key and, if the variant exports a name, that name too, for example `B, Sidebar layout`.
+- **Right arrow.** Cycles forward (wraps around).
+
+Behaviour:
+
+- Clicking an arrow updates the URL search param through the framework's router (`router.replace` on Next, `navigate` on React Router, or the equivalent) so the variant is shareable and reload-stable. Validate the param where the router supports it.
+- The `←` and `→` arrow keys also cycle. Don't intercept arrow keys when an `<input>`, `<textarea>`, or `[contenteditable]` is focused.
+- Visually distinct from the page (for example, a high-contrast pill with a subtle shadow) so it's obviously not part of the design being evaluated.
+- Hidden in production builds. Gate it on `process.env.NODE_ENV !== 'production'`, `import.meta.env.PROD`, or the framework's equivalent, so a stray prototype merge cannot expose the switcher to users.
+
+Put the switcher in a single shared component so both sub-shapes can reuse it. Locate it wherever shared UI lives in the project.
+
+### 5. Hand it over
+
+Surface the URL and the `?variant=` keys. The user will flip through whenever they get to it. The interesting feedback is usually **"I want the header from B with the sidebar from C"**. That's the actual design they want.
+
+### 6. Capture the answer and clean up
+
+Once a variant has won, capture the answer (which variant, and why), then capture the prototype the way the [SKILL](SKILL.md) describes. Fold the winner into the real code and move the rest onto the throwaway branch, not into the base branch:
+
+- **Sub-shape A.** Fold the winner into the existing page. Drop the losing variants and the switcher from the base branch.
+- **Sub-shape B.** Promote the winning variant to a real route. Drop the throwaway route and the switcher from the base branch.
+
+The full set of variants is the primary source, so it lands on the throwaway branch, not the bin. Variant components and the switcher left in the base branch rot fast and confuse the next reader.
+
+## Anti-patterns
+
+- **Variants that differ only in colour or copy.** That's a tweak, not a prototype. Real variants disagree about structure.
+- **Sharing too much code between variants.** A shared `<Header>` is fine. A shared `<Layout>` defeats the point. Each variant should be free to throw out the layout.
+- **Wiring variants to real mutations.** Read-only prototypes are fine. If a variant needs to mutate, point it at a stub. The question is "what should this look like", not "does the backend work".
+- **Promoting the prototype directly to production.** The variant code was written under prototype constraints (no tests, minimal error handling). Rewrite it properly when you fold it in.

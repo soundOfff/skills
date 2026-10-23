@@ -9,6 +9,8 @@ tags: rerender, memo, useMemo, optimization
 
 Extract expensive work into memoized components to enable early returns before computation.
 
+The extraction alone lets the early return skip the work. Add `memo` and `useMemo` only under `rerender-evidence-based-memoization`, meaning a profiled expensive calculation or a consumer that needs stable identity.
+
 **Incorrect (computes avatar even when loading):**
 
 ```tsx

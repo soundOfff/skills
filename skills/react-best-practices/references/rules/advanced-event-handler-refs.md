@@ -9,6 +9,8 @@ tags: advanced, hooks, refs, event-handlers, optimization
 
 Store callbacks in refs when used in effects that shouldn't re-subscribe on callback changes.
 
+On React 19.2 or later, use `useEffectEvent` instead (`rerender-useeffect-function-calls`). Keep this ref pattern for React versions without Effect Events.
+
 **Incorrect (re-subscribes on every render):**
 
 ```tsx

@@ -1,59 +1,36 @@
 ---
 title: Avoid Barrel File Imports
 impact: CRITICAL
-impactDescription: 200-800ms import cost, slow builds
+impactDescription: limits module-graph work and preserves direct ownership
 tags: bundle, imports, tree-shaking, barrel-files, performance
 ---
 
 ## Avoid Barrel File Imports
 
-Import directly from source files instead of barrel files to avoid loading thousands of unused modules. **Barrel files** are entry points that re-export multiple modules (e.g., `index.js` that does `export * from './module'`).
+Import repository modules from their owning file. Local barrel files obscure
+ownership, invite circular dependencies, and pull unrelated modules into the
+graph. Follow the repository's structure rules when they already ban or allow
+them.
 
-Popular icon and component libraries can have **up to 10,000 re-exports** in their entry file. For many React packages, **it takes 200-800ms just to import them**, affecting both development speed and production cold starts.
+For packages that expose supported per-module entrypoints, prefer those paths
+when bundle or development measurements show the root entrypoint expands a
+large graph. Use only package-exported paths. Never reach into an undocumented
+`dist/` layout. In Next.js, `experimental.optimizePackageImports` rewrites
+barrel imports from the listed packages at build time, so those imports can
+stay.
 
-**Why tree-shaking doesn't help:** When a library is marked as external (not bundled), the bundler can't optimize it. If you bundle it to enable tree-shaking, builds become substantially slower analyzing the entire module graph.
-
-**Incorrect (imports entire library):**
-
-```tsx
-import { Check, X, Menu } from 'lucide-react'
-// Loads 1,583 modules, takes ~2.8s extra in dev
-// Runtime cost: 200-800ms on every cold start
-
-import { Button, TextField } from '@mui/material'
-// Loads 2,225 modules, takes ~4.2s extra in dev
-```
-
-**Correct (imports only what you need):**
+**Repository barrel:**
 
 ```tsx
-import Check from 'lucide-react/dist/esm/icons/check'
-import X from 'lucide-react/dist/esm/icons/x'
-import Menu from 'lucide-react/dist/esm/icons/menu'
-// Loads only 3 modules (~2KB vs ~1MB)
-
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-// Loads only what you use
+import { OrderSummary, useOrder } from "@/features/orders";
 ```
 
-**Alternative (Next.js 13.5+):**
+**Direct owners:**
 
-```js
-// next.config.js - use optimizePackageImports
-module.exports = {
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@mui/material']
-  }
-}
-
-// Then you can keep the ergonomic barrel imports:
-import { Check, X, Menu } from 'lucide-react'
-// Automatically transformed to direct imports at build time
+```tsx
+import { OrderSummary } from "@/features/orders/ui/order-summary";
+import { useOrder } from "@/features/orders/api/order-queries";
 ```
 
-Direct imports provide 15-70% faster dev boot, 28% faster builds, 40% faster cold starts, and significantly faster HMR.
-
-Libraries commonly affected: `lucide-react`, `@mui/material`, `@mui/icons-material`, `@tabler/icons-react`, `react-icons`, `@headlessui/react`, `@radix-ui/react-*`, `lodash`, `ramda`, `date-fns`, `rxjs`, `react-use`.
-
-Reference: [How we optimized package imports in Next.js](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
+A package-root import is not automatically a defect. Require an exported
+subpath and measured or documented module-graph cost before changing it.

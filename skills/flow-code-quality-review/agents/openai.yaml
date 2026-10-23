@@ -1,0 +1,3 @@
+interface:
+  display_name: "Flow Code Quality Review"
+  short_description: "Review structural quality and codebase health"

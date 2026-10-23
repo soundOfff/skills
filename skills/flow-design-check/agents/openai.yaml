@@ -1,0 +1,3 @@
+interface:
+  display_name: "Flow Design Check"
+  short_description: "Audit UI changes for design drift"
