@@ -1,0 +1,5 @@
+interface:
+  display_name: "What's Next"
+  short_description: "Suggest the three most impactful next actions"
+policy:
+  allow_implicit_invocation: false
