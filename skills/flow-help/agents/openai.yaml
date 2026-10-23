@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow Help"
+  short_description: "Navigate a repository with answer-first guidance"
+policy:
+  allow_implicit_invocation: false

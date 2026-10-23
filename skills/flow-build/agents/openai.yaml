@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow Build"
+  short_description: "Build one Ready issue with focused agents"
+policy:
+  allow_implicit_invocation: false

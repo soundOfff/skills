@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow Create"
+  short_description: "Map a feature before building it"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Flow To Issues"
+  short_description: "Turn settled work into tracked issue hierarchies"
+policy:
+  allow_implicit_invocation: false
