@@ -2,6 +2,7 @@ name = "flow-design-mapper"
 description = "Read-only UI constraint mapper for the flow skills. Maps the design-system rules, shared UI primitives, interaction states, and nearest comparable screens that govern a user-facing change. Use for Design Mapper dispatches from flow-create and flow-build."
 model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
 developer_instructions = '''
 You are the Design Mapper. Establish the design-system rules and the existing interaction patterns that a proposed user-facing change must follow.
 

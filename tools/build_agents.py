@@ -12,6 +12,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ROLES = ROOT / "agents" / "roles"
 REQUIRED = ("name", "description", "claude-tools", "claude-model", "codex-model", "codex-effort")
+INCLUDE = re.compile(r"^\{\{include:([^}]+)\}\}$", re.M)
 
 
 def parse(path: pathlib.Path) -> tuple[dict[str, str], str]:
@@ -25,7 +26,7 @@ def parse(path: pathlib.Path) -> tuple[dict[str, str], str]:
         sys.exit(f"{path}: missing {', '.join(missing)}")
     if meta["name"] != path.stem:
         sys.exit(f"{path}: name {meta['name']!r} must match the file name")
-    body = m.group(2).rstrip() + "\n"
+    body = INCLUDE.sub(lambda i: (ROOT / i.group(1)).read_text(encoding="utf-8").rstrip(), m.group(2)).rstrip() + "\n"
     if "'''" in body:
         sys.exit(f"{path}: body cannot contain ''' because it is written as a TOML literal string")
     return meta, body
@@ -47,7 +48,8 @@ def render(meta: dict[str, str], body: str) -> dict[pathlib.Path, str]:
         f"description = {json.dumps(meta['description'], ensure_ascii=False)}\n"
         f"model = {json.dumps(meta['codex-model'])}\n"
         f"model_reasoning_effort = {json.dumps(meta['codex-effort'])}\n"
-        f"developer_instructions = '''\n{body}'''\n"
+        + ('sandbox_mode = "read-only"\n' if meta.get("read-only") == "true" else "")
+        + f"developer_instructions = '''\n{body}'''\n"
     )
     return {
         ROOT / "agents" / "claude" / f"{name}.md": claude,
@@ -55,10 +57,23 @@ def render(meta: dict[str, str], body: str) -> dict[pathlib.Path, str]:
     }
 
 
+def orphans(names: set[str]) -> list[pathlib.Path]:
+    generated = list((ROOT / "agents" / "codex").glob("*.toml"))
+    generated += list((ROOT / "agents" / "claude").glob("flow-*.md"))
+    return [p for p in generated if p.stem not in names]
+
+
 def main() -> int:
     check = "--check" in sys.argv
     stale = []
-    for role in sorted(ROLES.glob("*.md")):
+    roles = sorted(ROLES.glob("*.md"))
+    for path in orphans({r.stem for r in roles}):
+        if check:
+            stale.append(f"{path.relative_to(ROOT)} (no role in agents/roles/)")
+        else:
+            path.unlink()
+            print(f"removed {path.relative_to(ROOT)}, which has no role")
+    for role in roles:
         for path, content in render(*parse(role)).items():
             current = path.read_text(encoding="utf-8") if path.exists() else None
             if current == content:

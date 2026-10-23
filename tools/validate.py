@@ -16,14 +16,12 @@ VENDOR = ROOT / "vendor" / "skills"
 AGENTS = ROOT / "agents"
 
 PSTACK = {
-    "architect", "arena", "automate-me", "babysit", "benchmark-checklist", "blast-radius", "bro",
-    "correct", "create-formal-verification-skill", "create-verification-skill", "deslop",
-    "figure-it-out", "fix-ci", "fix-merge-conflicts", "get-pr-comments", "how", "in-your-own-words",
-    "interrogate", "ketchup", "maintain-formal-verification-skill", "maintain-verification-skill",
-    "make-bot-ui", "make-pr-easy-to-review", "no-comments", "poteto-help", "poteto-mode", "recall",
-    "reflect", "setup-pstack", "sharpen", "show-me-your-work", "swarm", "tdd", "teach",
-    "technical-writing", "typescript-best-practices", "unslop", "what-did-i-get-done", "why",
-    "poteto-agent", "comment-sicko",
+    "architect", "arena", "automate-me", "benchmark-checklist", "blast-radius", "bro", "correct",
+    "create-formal-verification-skill", "create-verification-skill", "figure-it-out", "how",
+    "in-your-own-words", "interrogate", "ketchup", "maintain-formal-verification-skill",
+    "maintain-verification-skill", "no-comments", "poteto-help", "poteto-mode", "recall", "reflect",
+    "setup-pstack", "sharpen", "show-me-your-work", "swarm", "tdd", "teach", "technical-writing",
+    "typescript-best-practices", "unslop", "why", "poteto-agent", "comment-sicko",
 }
 PSTACK |= {
     f"principle-{p}" for p in (
@@ -119,11 +117,15 @@ def text_files(base: pathlib.Path):
             yield p
 
 
+def authored_docs():
+    yield from (p for p in text_files(FIRST_PARTY) if p.suffix == ".md")
+    yield from sorted((AGENTS / "roles").glob("*.md"))
+    yield from (ROOT / n for n in ("README.md", "AGENTS.md", "THIRD_PARTY_NOTICES.md") if (ROOT / n).exists())
+
+
 def check_links_and_refs(skills: dict[str, pathlib.Path], agent_names: set[str]) -> None:
     known = set(skills) | agent_names | HARNESS_COMMANDS
-    for p in text_files(FIRST_PARTY):
-        if p.suffix != ".md":
-            continue
+    for p in authored_docs():
         text = p.read_text(encoding="utf-8")
         for target in LINK.findall(FENCE.sub("", text)):
             if re.match(r"^(https?:|mailto:|#|<)", target) or "<" in target:
@@ -143,7 +145,7 @@ def check_links_and_refs(skills: dict[str, pathlib.Path], agent_names: set[str])
                 errors.append(f"{rel(p)}: unknown pstack skill pstack:{ref}")
 
 
-PROFILE_FILE = re.compile(r"(?:docs/agents/([a-z-]+)\.md|\bAGENTS\.md\b)")
+PROFILE_FILE = re.compile(r"(?:(?<![\w-])(?:docs/agents/)?(ticket-standard|pr-standard|issue-tracker|domain)\.md|\bAGENTS\.md\b)")
 HEADING_REF = re.compile(r"`(##\s[^`]+)`")
 
 
@@ -153,7 +155,8 @@ def template_headings() -> dict[str, set[str]] | None:
         return None
     heads: dict[str, set[str]] = {}
     for p in template.rglob("*.md"):
-        found = {line.strip() for line in p.read_text(encoding="utf-8").splitlines() if line.startswith("## ")}
+        text = FENCE.sub("", p.read_text(encoding="utf-8"))
+        found = {line.strip() for line in text.splitlines() if line.startswith("## ")}
         key = "AGENTS" if p.name == "agents-block.md" else p.stem
         if key.startswith("issue-tracker-"):
             key = "issue-tracker"

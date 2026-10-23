@@ -4,6 +4,7 @@ description: Researcher with web access for the flow skills. Answers one bounded
 claude-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
 claude-model: sonnet
 codex-model: gpt-6-luna
+read-only: true
 codex-effort: medium
 ---
 

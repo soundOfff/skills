@@ -47,7 +47,7 @@ committed branch ──/flow-to-pr──▶ pull request
 pull request ──▶ /flow-code-check, /flow-design-check, /flow-adv-review
 ```
 
-You start each stage yourself, with `/name` in Claude Code or `$name` in Codex. A stage keeps its state in a ledger under `.flow/` and stops at its handoff. Work that needs no issue skips the pipeline and runs through `poteto-mode` directly. `/flow-mode` is the single entry point. It loads `poteto-mode`, routes the request to a stage or a playbook, and applies the repository's standards. [lifecycle.md](skills/flow-mode/references/lifecycle.md) has the full state machine.
+You start each stage yourself, as `/flow-create` in Claude Code or `$flow-create` in Codex. A stage keeps its state in a ledger under `.flow/` and stops at its handoff. Work that needs no issue skips the pipeline and runs through `poteto-mode` directly. `/flow-mode` is the single entry point. It loads `poteto-mode`, routes the request to a stage or a playbook, and applies the repository's standards. [lifecycle.md](skills/flow-mode/references/lifecycle.md) has the full state machine.
 
 Read-only role agents do the investigation, each on a model pinned in its definition:
 

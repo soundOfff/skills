@@ -15,7 +15,7 @@ This repository is a skill kit. `install.sh` symlinks it into Claude Code and Co
 
 ## Rules
 
-- Run `python3 tools/validate.py` before every commit. It must report 0 errors. It checks frontmatter, unique names, dead links, unknown `/commands` and `pstack:` references, rendered agents and the README catalog, company-specific strings, em dashes in workflow prose, and stack-specific words inside `flow-*` skills.
+- Run `python3 tools/validate.py` before every commit. It must report 0 errors. It checks frontmatter, unique names, dead links, unknown slash commands and `pstack:` references, rendered agents and the README catalog, company-specific strings, em dashes in workflow prose, and stack-specific words inside `flow-*` skills.
 - After editing a file in `agents/roles/`, run `python3 tools/build_agents.py`. After adding, removing, or renaming a skill, run `python3 tools/readme_catalog.py`. Never edit the generated agent files or the catalog block by hand.
 - Follow the pstack Authoring a skill playbook for any `SKILL.md`. Write prose by the rules of `pstack:unslop`. Reference pstack skills as `pstack:<name>` and kit skills as `/<name>` or by their backticked name.
 - Keep `flow-*` skills free of stack-specific commands. They read gates from the target repository's `AGENTS.md` `## Commands` table. Only `flow-setup` names package managers and build tools, because it detects them.

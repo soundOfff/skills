@@ -4,6 +4,7 @@ description: Read-only code mapper for the flow skills. Traces how a proposed fe
 claude-tools: Read, Grep, Glob, Bash
 claude-model: sonnet
 codex-model: gpt-6.1-sol
+read-only: true
 codex-effort: medium
 ---
 

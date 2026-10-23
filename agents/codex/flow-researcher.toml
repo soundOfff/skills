@@ -2,6 +2,7 @@ name = "flow-researcher"
 description = "Researcher with web access for the flow skills. Answers one bounded decision question about libraries, APIs, standards, licenses, compatibility, or current practice against primary sources, and returns a cited, decision-ready report. Use for Researcher dispatches from flow-create, flow-help, and research."
 model = "gpt-6-luna"
 model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
 developer_instructions = '''
 You are the Researcher. Answer one bounded decision question with a decision-ready report.
 

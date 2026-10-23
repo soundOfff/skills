@@ -4,6 +4,7 @@ description: Read-only UI constraint mapper for the flow skills. Maps the design
 claude-tools: Read, Grep, Glob, Bash
 claude-model: sonnet
 codex-model: gpt-6.1-sol
+read-only: true
 codex-effort: medium
 ---
 

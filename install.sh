@@ -87,13 +87,11 @@ prune() {
     name="$(basename "$entry")"
     is_listed "$name" "$wanted" && continue
     target="$(readlink "$entry")"
-    if [ ! -e "$entry" ]; then
-      reason="dangling -> $target"
-    elif points_into_kit "$target"; then
-      reason="no longer in the kit"
-    else
+    if ! points_into_kit "$target"; then
+      [ -e "$entry" ] || say "  leave   $label/$name (dangling -> $target, not a kit link)"
       continue
     fi
+    if [ -e "$entry" ]; then reason="no longer in the kit"; else reason="dangling -> $target"; fi
     say "  prune   $label/$name ($reason)"
     act rm "$entry"
     pruned=$((pruned + 1))

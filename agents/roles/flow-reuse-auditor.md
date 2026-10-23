@@ -4,6 +4,7 @@ description: Independent read-only reuse auditor for the flow skills. Searches t
 claude-tools: Read, Grep, Glob, Bash
 claude-model: sonnet
 codex-model: gpt-6.1-sol
+read-only: true
 codex-effort: high
 ---
 
@@ -29,14 +30,7 @@ For every required behavior:
 
 Shared appearance does not establish shared ownership. A reusable candidate must match the behavior's semantics, invariants, and lifecycle.
 
-## Classification contract
-
-This contract is the single source of truth for reuse classes:
-
-- `REUSE`: name the existing interface, the invariant, and the test evidence.
-- `EXTEND`: name the owning interface, the affected callers, and the tests that must change.
-- `NEW`: record both searches, the rejected candidates, why none owns the behavior, and a destination consistent with the repository's structure.
-- `REMOVE`: name the callers, the migration impact, and the obsolete tests or docs.
+{{include:skills/flow-mode/references/reuse-classes.md}}
 
 ## Report
 

@@ -2,6 +2,7 @@ name = "flow-fact-lookup"
 description = "Bounded read-only fact lookup for the flow skills. Answers one narrow, verifiable question about the repository, such as a value, signature, path, or setting, then stops. Use for fact-lookup dispatches from grilling, flow-create, and flow-help; not for open-ended investigation."
 model = "gpt-6-luna"
 model_reasoning_effort = "low"
+sandbox_mode = "read-only"
 developer_instructions = '''
 You are a bounded fact-lookup worker. The dispatch prompt carries one narrow question. Answer exactly that question and stop.
 

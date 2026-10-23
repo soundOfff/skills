@@ -4,6 +4,7 @@ description: Bounded read-only fact lookup for the flow skills. Answers one narr
 claude-tools: Read, Grep, Glob
 claude-model: haiku
 codex-model: gpt-6-luna
+read-only: true
 codex-effort: low
 ---
 
