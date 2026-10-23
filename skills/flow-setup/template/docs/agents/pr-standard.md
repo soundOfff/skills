@@ -2,6 +2,8 @@
 
 A pull request is the unit of shipped proof. Reviewers, human or agent, judge it cold, and its merge closes the linked issue. The precision rule from `docs/agents/ticket-standard.md` holds here too. Reviewer defect-finding drops by about half beyond about 400 changed lines (SmartBear, 10 million review sessions). Median time to review roughly doubles with each extra 100 lines (Google's code review guidance). A description that answers what, why, and how up front cuts review time.
 
+The `Base branch`, `Publish mode`, `Merge strategy`, `Pull request template`, and `Closing reference` named below are rows of `## Settings` in `AGENTS.md`. Read their values there.
+
 ## Scope and size
 
 - **One concern per pull request.** It maps to one buildable work issue, or one coherent slice of one. A feature parent is never the work issue. "And" in the title is the same smell as in a ticket title.
@@ -11,10 +13,10 @@ A pull request is the unit of shipped proof. Reviewers, human or agent, judge it
 
 ## Body
 
-Pull request template: {{pr_template}}. These rules apply with or without one.
+Start from the file the `Pull request template` setting names, unless it reads `none`. These rules apply with or without one.
 
 - **Lead with what and why in one or two sentences.** The reviewer knows the shape of the change before the first file. Then surface the decisions a reviewer would otherwise reverse-engineer from the diff, such as tradeoffs and rejected alternatives.
-- **Link the issue.** Tracked work carries its closing reference, `{{closing_reference}}`, as the close operation in `docs/agents/issue-tracker.md` describes. Reference related issues, pull requests, and decision records by id.
+- **Link the issue.** Tracked work carries the `Closing reference` with its issue id filled in, as the close operation in `docs/agents/issue-tracker.md` describes. Reference related issues, pull requests, and decision records by id.
 - **Report validation honestly.** List each full-gate command from the `## Commands` table in `AGENTS.md` with its actual result. Disclose a flaky failure, a skipped gate, or a hook bypass with its evidence: what failed, why it looks unrelated, and what passed in isolation. Never claim it as a pass and never leave it out.
 - **Screenshots for UI changes,** with the same hygiene as tickets. No secrets, customer data, or access-granting links in images or text.
 - **Review guidance for multi-file changes.** Name the entry-point file and the reading order when the diff order misleads, as in "start with the schema change; the rest follows from it".
@@ -22,17 +24,13 @@ Pull request template: {{pr_template}}. These rules apply with or without one.
 
 ## Lifecycle
 
-| Setting | Value |
-| --- | --- |
-| Base branch | `{{base}}` |
-| Publish mode | `{{publish_mode}}` |
-| Merge strategy | `{{merge_strategy}}` |
+`<base>` below is the `Base branch` value.
 
-1. Branch from the latest `origin/{{base}}`. Never commit or push to the base branch.
-2. The author runs the full gate before asking for review. In `draft` mode, `/flow-to-pr` opens a draft, and the pull request leaves draft only after the developer has verified the code and the gates. In `ready` mode, it opens the pull request ready for review.
+1. Branch from the latest `origin/<base>`. Never commit or push to the base branch.
+2. The author runs the full gate before asking for review. When the `Publish mode` is `draft`, `/flow-to-pr` opens a draft, and the pull request leaves draft only after the developer has verified the code and the gates. When it is `ready`, `/flow-to-pr` opens the pull request ready for review.
 3. Address review feedback with new commits.
-4. Sync by rebase only. Run `git fetch origin {{base}}` and `git rebase origin/{{base}}`, then push with `git push --force-with-lease`. Never merge the base branch into the feature branch.
-5. The developer merges with the merge strategy above. Agents never merge unless the user asks in that message. On merge, the closing reference closes the linked issue as completed.
+4. Sync by rebase only. Run `git fetch origin <base>` and `git rebase origin/<base>`, then push with `git push --force-with-lease`. Never merge the base branch into the feature branch.
+5. The developer merges with the `Merge strategy`. Agents never merge unless the user asks in that message. On merge, the closing reference closes the linked issue as completed.
 
 ## Ready-for-review checklist
 

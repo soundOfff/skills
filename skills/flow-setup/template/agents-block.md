@@ -1,5 +1,20 @@
-<!-- flow:begin -->
+<!-- flow:begin v={{version}} -->
 <!-- Managed by /flow-setup. A re-run rewrites everything between these markers. Keep repository notes outside them. -->
+
+## Settings
+
+| Setting | Value |
+| --- | --- |
+| Base branch | `{{base}}` |
+| Publish mode | `{{publish_mode}}` |
+| Merge strategy | `{{merge_strategy}}` |
+| Forge | `{{forge}}` |
+| Tracker | `{{tracker}}` |
+| Pull request template | {{pr_template}} |
+| Closing reference | `{{closing_reference}}` |
+| Ready label | `{{ready_label}}` |
+
+Flow skills read these values from this table and nowhere else. Files in `docs/agents/` name a row instead of repeating its value. To change a value, re-run `/flow-setup`.
 
 ## Commands
 
@@ -29,16 +44,16 @@ The full gate is `lint`, `typecheck`, `test`, and `build`, skipping any that rea
 | Design system | {{src:Design system}} |
 | Structure | {{src:Structure}} |
 
-A source that reads `none` does not exist yet. Tracker, ticket, and pull request rules live in `docs/agents/`: `issue-tracker.md`, `ticket-standard.md`, `pr-standard.md`, `domain.md`, and `triage-labels.md`.
+A source that reads `none` does not exist yet. Tracker, ticket, and pull request rules live in `docs/agents/`: `issue-tracker.md`, `ticket-standard.md`, `pr-standard.md`, and `domain.md`.
 
 ## Delivery workflow
 
 Tracked work moves through four stages. Each stage is human-invoked, keeps one ledger under the git-ignored `.flow/` folder, and hands control back. No stage starts the next one.
 
 1. `/flow-create`, optional. Turns an idea into a confirmed feature map.
-2. `/flow-to-issues`, required for tracked work. Turns settled work into Ready issues after the user approves the exact set.
+2. `/flow-to-issues`, required for tracked work. Turns settled work into issues that carry the `Ready label`, after the user approves the exact set.
 3. `/flow-build <issue>`, optional. Builds one Ready issue up to its review boundary with parallel agents. Direct work on the issue's branch is fine too.
-4. `/flow-to-pr <issue>`, required. Rebases, pushes, and opens the pull request in the publish mode from `docs/agents/pr-standard.md`.
+4. `/flow-to-pr <issue>`, required. Rebases, pushes, and opens the pull request in the `Publish mode`.
 
 After publication, `/flow-code-check` reviews code and `/flow-design-check` reviews UI. Their results are advice and never block. Untracked work, such as a quick fix or a spike, runs through `pstack:poteto-mode` directly.
 
@@ -60,8 +75,8 @@ In Codex, type `$flow-help` instead of `/flow-help`, and the same for every skil
 ## Golden rules
 
 - Never add, upgrade, or remove a dependency unless the user asks for it in that message. Always pin the exact version.
-- Work on a feature branch. Never commit or push to `{{base}}`.
-- Sync with `origin/{{base}}` by rebase. Never merge the base branch into a feature branch.
+- Work on a feature branch. Never commit or push to the `Base branch`.
+- Sync with the `Base branch` on `origin` by rebase. Never merge the base branch into a feature branch.
 - Force-push only after a rebase, and only with `--force-with-lease`.
 - Never merge a pull request unless the user asks for it in that message.
 - Never create an issue, parent, or label without a user message you can quote that asks for it. See `## Authorization gate` in `docs/agents/issue-tracker.md`.

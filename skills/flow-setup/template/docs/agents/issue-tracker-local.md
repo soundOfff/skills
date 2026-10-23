@@ -8,16 +8,9 @@ Issues for this repository live as Markdown files under `.scratch/`. There is no
 - An issue's id is its path under `.scratch/` without the extension, as in `checkout/issues/03-retry-payment`.
 - Header lines at the top of each file record its state: `Status: open`, `in-progress`, or `closed`, then `Assignee:`, `Parent:`, `Blocked by:`, and `Labels:`.
 - Comments append under a `## Comments` heading at the bottom, oldest first, each with a date and an author.
+- Writing a new file under `.scratch/` creates a tracker item, so it passes the authorization gate first.
 
-## Authorization gate
-
-Creating tracker items is deny-by-default. What becomes tracked work is the maintainer's decision, made item by item. Writing a new file under `.scratch/` creates a tracker item.
-
-Never create an issue, a parent, or a label without explicit authorization. Authorization is a message from the user that asks for this item, and the test is that you can quote it. An audit finding, deferred work, a standing doc line, or an existing branch is not authorization. `/flow-to-issues` authorizes local drafting only. It publishes after the user approves the exact issue set and hierarchy.
-
-Findings that surface mid-task go to one of two places, and both leave the tracker untouched. Report them in the conversation, proposing a title and a one-line reason, then wait. Or add them to the ticket already in hand, as a Follow-ups section in a body you were asked to write.
-
-The operations below are mechanics for after authorization.
+{{authorization_gate}}
 
 ## Operations
 
@@ -26,7 +19,7 @@ The operations below are mechanics for after authorization.
 - **List.** List the files under `.scratch/*/issues/` and read their header lines. `rg -l '^Status: open' .scratch` finds open issues.
 - **Comment.** Append under `## Comments`.
 - **Label.** Edit the `Labels:` line.
-- **Close.** Add a comment with the reason, then set `Status: closed`. The closing reference is `Closes <issue id>` in the pull request body. Nothing closes the file automatically, so set the status after the merge.
+- **Close.** Add a comment with the reason, then set `Status: closed`. The pull request body carries the `Closing reference` setting from `AGENTS.md` `## Settings`. Nothing closes the file automatically, so set the status after the merge.
 - **Set parent.** Set the child's `Parent:` line to the parent's id, and list the child under a `## Children` heading in the parent.
 - **Add dependency.** Add the blocker's id to the child's `Blocked by:` line. An issue is unblocked when every listed issue is closed.
 - **Assign.** Set the `Assignee:` line. Never replace another assignee.

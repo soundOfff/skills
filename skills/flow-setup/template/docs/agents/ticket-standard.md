@@ -119,4 +119,6 @@ Check a ticket before claiming or dispatching it. It is Ready only when:
 10. The review boundary names the evidence for pausing at this issue.
 11. Code-bearing work lands through a branch and a pull request, never as a direct change to the base branch.
 
+A work issue that passes these checks carries the label the `Ready label` setting in `AGENTS.md` `## Settings` names. `/flow-to-issues` applies it when it publishes, and `/flow-build` picks candidates by it.
+
 A failed check sends the ticket back to its author. Never fix it silently during dispatch.

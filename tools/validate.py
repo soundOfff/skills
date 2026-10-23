@@ -252,16 +252,25 @@ def check_agents() -> set[str]:
     return names
 
 
+MACOS_PYTHON = pathlib.Path("/usr/bin/python3")
+
+
 def check_script_tests() -> None:
     tests = sorted(str(p.relative_to(ROOT)) for p in FIRST_PARTY.glob("*/scripts/tests/*.test.mjs"))
-    if not tests:
-        return
-    if shutil.which("node") is None:
+    if tests and shutil.which("node") is None:
         warnings.append("node is not on PATH, so the skill script tests did not run")
-        return
-    r = subprocess.run(["node", "--test", *tests], cwd=ROOT, capture_output=True, text=True)
-    if r.returncode != 0:
-        errors.append(f"node --test failed for skill scripts:\n{(r.stdout + r.stderr).strip()[-2000:]}")
+    elif tests:
+        r = subprocess.run(["node", "--test", *tests], cwd=ROOT, capture_output=True, text=True)
+        if r.returncode != 0:
+            errors.append(f"node --test failed for skill scripts:\n{(r.stdout + r.stderr).strip()[-2000:]}")
+    interpreters = [sys.executable] + ([str(MACOS_PYTHON)] if MACOS_PYTHON.exists() else [])
+    for suite in sorted(FIRST_PARTY.glob("*/scripts/tests/__init__.py")):
+        scripts = suite.parent.parent
+        for python in interpreters:
+            cmd = [python, "-m", "unittest", "discover", "-s", str(suite.parent), "-t", str(scripts)]
+            r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+            if r.returncode != 0:
+                errors.append(f"{rel(suite.parent)} failed under {python}:\n{(r.stdout + r.stderr).strip()[-2000:]}")
 
 
 def check_generated() -> None:

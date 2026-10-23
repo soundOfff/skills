@@ -80,6 +80,7 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 | `flow-design-check` | Produce an optional design-drift review for a pinned UI change. | you or the agent |
 | `flow-adv-review` | Adversarially challenge a working-tree or branch diff in a fresh reviewer process when a developer explicitly requests it. | you type it |
 | `flow-subagent` | Spawn one flow role subagent and supervise it to completion. | you or the agent |
+| `flow-tdd` | Test-drive executable behavior through public seams with a red, green, refactor loop. | you or the agent |
 
 ### Everyday skills
 
@@ -92,7 +93,6 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 | `react-best-practices` | React and Next.js performance and code-quality rules, built on Vercel Engineering's performance set and extended with component structure, testing, and type-safety rules. | you or the agent |
 | `react-composition-patterns` | Design React 19 component APIs with composition, explicit variants, and compound components. | you or the agent |
 | `research` | Investigate a question against high-trust primary sources and write the cited findings to a Markdown note in the repository. | you or the agent |
-| `tdd` | Test-drive executable behavior through public seams with a red, green, refactor loop. | you or the agent |
 | `test-audit` | Invoke whenever writing, changing, reviewing, or sweeping tests. | you or the agent |
 | `whats-next` | Suggests the 3 most impactful next actions from the developer's full context: git, open pull requests and review requests, the issue tracker, flow ledgers waiting on their next stage, and the current conversation. | you type it |
 
