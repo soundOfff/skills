@@ -1,6 +1,6 @@
 ---
 name: flow-setup
-description: Set up the flow kit. In a repository, detect the forge, tracker, docs, and the stack's commands, then write the repository profile the flow skills read (the AGENTS.md flow block, the docs/agents standards, the pull request template, and the .flow/ ignore). With `machine`, link the kit's skills and agents into Claude Code and Codex and check pstack. Use for /flow-setup, when a flow skill reports a missing profile, or when the flow agents are not installed.
+description: Install the flow kit on this machine, or profile a repository so the flow skills run there. In a repository, detect the forge, tracker, docs, and the stack's commands, then write the repository profile the flow skills read (the AGENTS.md flow block, the docs/agents standards, the pull request template, and the .flow/ ignore). With `machine`, link the kit's skills and agents into Claude Code and Codex and check pstack. Use for /flow-setup, when a flow skill reports a missing profile, or when the flow agents are not installed.
 disable-model-invocation: true
 argument-hint: '[machine]'
 ---
