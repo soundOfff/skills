@@ -114,6 +114,10 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 
 <!-- catalog:end -->
 
+## Guides
+
+- [Build a pull request review bot](docs/pr-review-bot.md) runs the kit's adversarial review on any pull request you comment on, with one GitHub Actions workflow or a small cloud setup.
+
 ## Maintain the kit
 
 - `python3 tools/validate.py` checks every skill and agent. Run it before each commit.

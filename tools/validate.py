@@ -120,6 +120,7 @@ def text_files(base: pathlib.Path):
 def authored_docs():
     yield from (p for p in text_files(FIRST_PARTY) if p.suffix == ".md")
     yield from sorted((AGENTS / "roles").glob("*.md"))
+    yield from sorted((ROOT / "docs").rglob("*.md"))
     yield from (ROOT / n for n in ("README.md", "AGENTS.md", "THIRD_PARTY_NOTICES.md") if (ROOT / n).exists())
 
 
@@ -133,7 +134,7 @@ def check_links_and_refs(skills: dict[str, pathlib.Path], agent_names: set[str])
             path = target.split("#", 1)[0]
             if path and not (p.parent / path).exists():
                 errors.append(f"{rel(p)}: dead link {target}")
-        for ref in SLASH.findall(text):
+        for ref in ([] if p.is_relative_to(ROOT / "docs") else SLASH.findall(text)):
             base = ref.split(":", 1)
             if len(base) == 2:
                 if base[0] != "pstack" or base[1] not in PSTACK:
@@ -206,7 +207,7 @@ def leak_patterns() -> list[tuple[re.Pattern, str]]:
 
 def check_leaks() -> None:
     patterns = leak_patterns()
-    scanned = [p for base in (FIRST_PARTY, AGENTS) if base.exists() for p in text_files(base)]
+    scanned = [p for base in (FIRST_PARTY, AGENTS, ROOT / "docs") if base.exists() for p in text_files(base)]
     scanned += [ROOT / n for n in ("README.md", "AGENTS.md", "install.sh") if (ROOT / n).exists()]
     for p in scanned:
         text = p.read_text(encoding="utf-8", errors="replace")
@@ -218,7 +219,7 @@ def check_leaks() -> None:
         if p.suffix == ".md" and "—" in text:
             line = text.count("\n", 0, text.index("—")) + 1
             msg = f"{rel(p)}:{line}: em dash; use a period or a comma (pstack:unslop rule 13)"
-            authored = top.startswith("flow-") or p.is_relative_to(AGENTS / "roles") or p.parent == ROOT
+            authored = top.startswith("flow-") or p.is_relative_to(AGENTS / "roles") or p.is_relative_to(ROOT / "docs") or p.parent == ROOT
             (errors if authored else warnings).append(msg)
         if top.startswith("flow-") and top != "flow-setup":
             for m in STACK_WORDS.finditer(text):
