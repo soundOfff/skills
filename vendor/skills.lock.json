@@ -1,6 +1,24 @@
 {
   "version": 3,
   "skills": {
+    "better-accessibility": {
+      "source": "jakubkrehel/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/jakubkrehel/skills.git",
+      "skillPath": "skills/better-accessibility/SKILL.md",
+      "skillFolderHash": "8fdb2f25f822c2ffaca438e2d325eed9ac6e9b9b",
+      "installedAt": "2026-10-23T17:04:28.000Z",
+      "updatedAt": "2026-10-23T17:04:28.000Z"
+    },
+    "better-colors": {
+      "source": "jakubkrehel/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/jakubkrehel/skills.git",
+      "skillPath": "skills/better-colors/SKILL.md",
+      "skillFolderHash": "1f96b150ca7f25fd63ba6079a2ceaf75849186f5",
+      "installedAt": "2026-10-23T17:04:28.000Z",
+      "updatedAt": "2026-10-23T17:04:28.000Z"
+    },
     "better-interface": {
       "source": "jakubkrehel/skills",
       "sourceType": "github",
@@ -10,6 +28,24 @@
       "installedAt": "2026-09-28T14:28:30.275Z",
       "updatedAt": "2026-09-28T14:28:30.275Z"
     },
+    "better-layout": {
+      "source": "jakubkrehel/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/jakubkrehel/skills.git",
+      "skillPath": "skills/better-layout/SKILL.md",
+      "skillFolderHash": "7ffa8ef65b63bd160eef9d32d1a4493d98260d0f",
+      "installedAt": "2026-10-23T17:04:28.000Z",
+      "updatedAt": "2026-10-23T17:04:28.000Z"
+    },
+    "better-typography": {
+      "source": "jakubkrehel/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/jakubkrehel/skills.git",
+      "skillPath": "skills/better-typography/SKILL.md",
+      "skillFolderHash": "25751e782efef061becc8922bb31e378d57fc7b8",
+      "installedAt": "2026-10-23T17:04:28.000Z",
+      "updatedAt": "2026-10-23T17:04:28.000Z"
+    },
     "better-ui": {
       "source": "jakubkrehel/skills",
       "sourceType": "github",
@@ -18,6 +54,15 @@
       "skillFolderHash": "710b8e9a1b4086594d24050bbb6768dbc421e9dc",
       "installedAt": "2026-09-22T17:39:48.226Z",
       "updatedAt": "2026-09-22T17:39:48.226Z"
+    },
+    "better-writing": {
+      "source": "jakubkrehel/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/jakubkrehel/skills.git",
+      "skillPath": "skills/better-writing/SKILL.md",
+      "skillFolderHash": "4589785678cb20ee3f2dec9cbbb1149bc408fbc1",
+      "installedAt": "2026-10-23T17:04:28.000Z",
+      "updatedAt": "2026-10-23T17:04:28.000Z"
     },
     "frontend-design": {
       "source": "anthropics/claude-plugins-official",
