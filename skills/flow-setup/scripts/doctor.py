@@ -54,7 +54,6 @@ class Check(NamedTuple):
 
 
 def sections(text: str) -> dict[str, str]:
-    """Body text under each level-two heading, keyed by the heading line."""
     out: dict[str, str] = {}
     current = None
     for line in text.splitlines():
@@ -66,10 +65,14 @@ def sections(text: str) -> dict[str, str]:
     return out
 
 
-def table(body: str) -> dict[str, str]:
-    """First column to second column for each data row of the first Markdown table."""
+def first_table(body: str) -> dict[str, str]:
     rows: dict[str, str] = {}
-    lines = [line.strip() for line in body.splitlines() if line.strip().startswith("|")]
+    lines: list[str] = []
+    for line in body.splitlines():
+        if line.strip().startswith("|"):
+            lines.append(line.strip())
+        elif lines:
+            break
     for line in lines[2:]:
         cells = [c.strip() for c in line.strip("|").split("|")]
         if len(cells) >= 2:
@@ -128,7 +131,7 @@ def check_block(root: Path) -> tuple[list[Check], str | None]:
 
 
 def check_commands(block: str, root: Path) -> list[Check]:
-    rows = table(sections(block).get("## Commands", ""))
+    rows = first_table(sections(block).get("## Commands", ""))
     missing = [g for g in GATES if g not in rows]
     extra = [g for g in rows if g not in GATES]
     if missing:
@@ -153,7 +156,7 @@ def check_commands(block: str, root: Path) -> list[Check]:
 
 
 def check_sources(block: str, root: Path) -> list[Check]:
-    rows = table(sections(block).get("## Sources of truth", ""))
+    rows = first_table(sections(block).get("## Sources of truth", ""))
     missing = [s for s in SOURCES if s not in rows]
     results = [Check("FAIL", "sources table", f"missing rows: {', '.join(missing)}")] if missing else [
         Check("PASS", "sources table", f"{len(SOURCES)} rows")
@@ -176,7 +179,7 @@ def check_sources(block: str, root: Path) -> list[Check]:
 
 def lifecycle_checks(root: Path, text: str) -> list[str]:
     problems = []
-    rows = table(sections(text).get("## Lifecycle", ""))
+    rows = first_table(sections(text).get("## Lifecycle", ""))
     base = rows.get("Base branch", "").strip("`")
     mode = rows.get("Publish mode", "").strip("`")
     merge = rows.get("Merge strategy", "").strip("`")
@@ -211,7 +214,7 @@ def check_docs(root: Path) -> list[Check]:
         if name == "pr-standard.md":
             problems += lifecycle_checks(root, text)
         if name == "triage-labels.md":
-            rows = table(text)
+            rows = first_table(text)
             problems += [f"no row for {role}" for role in TRIAGE_ROLES if role not in rows]
         results += [Check("FAIL", label, "; ".join(problems))] if problems else [Check("PASS", label, "present with required sections")]
         results += placeholders(label, text)
@@ -222,7 +225,7 @@ def check_base(root: Path) -> list[Check]:
     path = root / "docs" / "agents" / "pr-standard.md"
     if not path.is_file():
         return []
-    base = table(sections(path.read_text(encoding="utf-8")).get("## Lifecycle", "")).get("Base branch", "").strip("`")
+    base = first_table(sections(path.read_text(encoding="utf-8")).get("## Lifecycle", "")).get("Base branch", "").strip("`")
     if not base:
         return []
     for ref in (f"refs/heads/{base}", f"refs/remotes/origin/{base}"):

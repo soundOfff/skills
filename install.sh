@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-#
-# Link this kit's skills and agents into Claude Code and Codex.
-#
-# The repo stays the source of truth: every skill and agent is a symlink, so an
-# edit here takes effect in both tools at once. Real files that would be
-# displaced are moved to .install-backup/<timestamp>/ first, and nothing real is
-# ever deleted. Re-running converges on the same state.
 
 set -euo pipefail
 
@@ -46,8 +39,6 @@ linked=0 relinked=0 backed_up=0 pruned=0 unchanged=0
 say() { printf '%s\n' "$*"; }
 act() { [ $DRY -eq 1 ] || "$@"; }
 
-# Each source as "name<TAB>absolute path". Skills are directories with a
-# SKILL.md; agents are single files with the given extension.
 skill_sources() {
   local d
   for d in "$REPO"/skills/*/ "$REPO"/vendor/skills/*/; do
@@ -86,24 +77,24 @@ link_one() {
   act ln -s "$src" "$dest"
 }
 
-# Remove symlinks that no longer lead anywhere, and links into this repo whose
-# source was deleted or renamed. A symlink holds no content of its own.
+is_listed() { case $'\n'"$2"$'\n' in *$'\n'"$1"$'\n'*) return 0 ;; esac; return 1; }
+points_into_kit() { [ "${1#"$REPO"/}" != "$1" ]; }
+
 prune() {
-  local dir="$1" label="$2" wanted="$3" entry target name
+  local dir="$1" label="$2" wanted="$3" entry target name reason
   for entry in "$dir"/* "$dir"/.[!.]*; do
     [ -L "$entry" ] || continue
     name="$(basename "$entry")"
-    case $'\n'"$wanted"$'\n' in
-      *$'\n'"$name"$'\n'*) continue ;;
-    esac
+    is_listed "$name" "$wanted" && continue
     target="$(readlink "$entry")"
     if [ ! -e "$entry" ]; then
-      say "  prune   $label/$name (dangling -> $target)"
-    elif [ "${target#"$REPO"/}" != "$target" ]; then
-      say "  prune   $label/$name (no longer in the kit)"
+      reason="dangling -> $target"
+    elif points_into_kit "$target"; then
+      reason="no longer in the kit"
     else
       continue
     fi
+    say "  prune   $label/$name ($reason)"
     act rm "$entry"
     pruned=$((pruned + 1))
   done

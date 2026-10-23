@@ -54,8 +54,7 @@ def rel(p: pathlib.Path) -> str:
     return str(p.relative_to(ROOT))
 
 
-def frontmatter(text: str) -> dict[str, str] | None:
-    """Top-level scalar keys of a YAML frontmatter block. Nested maps and lists are skipped."""
+def frontmatter_scalars(text: str) -> dict[str, str] | None:
     if not text.startswith("---\n"):
         return None
     end = text.find("\n---", 3)
@@ -98,7 +97,7 @@ def skill_dirs() -> dict[str, pathlib.Path]:
 
 def check_frontmatter(skills: dict[str, pathlib.Path]) -> None:
     for name, d in skills.items():
-        fm = frontmatter((d / "SKILL.md").read_text(encoding="utf-8"))
+        fm = frontmatter_scalars((d / "SKILL.md").read_text(encoding="utf-8"))
         where = rel(d / "SKILL.md")
         if fm is None:
             errors.append(f"{where}: missing frontmatter")
@@ -162,8 +161,14 @@ def template_headings() -> dict[str, set[str]] | None:
     return heads
 
 
+def nearest_file(files: list[tuple[int, int, str]], match: re.Match) -> str:
+    def gap(f: tuple[int, int, str]) -> int:
+        start, end, _ = f
+        return match.start() - end if end <= match.start() else start - match.end()
+    return min(files, key=gap)[2]
+
+
 def check_profile_refs() -> None:
-    """A skill that cites `## Heading` next to a profile file must name a heading the template writes."""
     heads = template_headings()
     if heads is None:
         return
@@ -176,8 +181,7 @@ def check_profile_refs() -> None:
             if not files:
                 continue
             for m in HEADING_REF.finditer(para.group(0)):
-                gap = lambda f: m.start() - f[1] if f[1] <= m.start() else f[0] - m.end()
-                owner = min(files, key=gap)[2]
+                owner = nearest_file(files, m)
                 ref = m.group(1).strip()
                 if ref not in heads.get(owner, set()):
                     line = text.count("\n", 0, para.start() + m.start()) + 1
@@ -224,7 +228,7 @@ def check_agents() -> set[str]:
     claude = {p.stem: p for p in (AGENTS / "claude").glob("*.md")} if AGENTS.exists() else {}
     codex = {p.stem: p for p in (AGENTS / "codex").glob("*.toml")} if AGENTS.exists() else {}
     for stem, p in claude.items():
-        fm = frontmatter(p.read_text(encoding="utf-8"))
+        fm = frontmatter_scalars(p.read_text(encoding="utf-8"))
         if not fm or fm.get("name") != stem or not fm.get("description"):
             errors.append(f"{rel(p)}: needs frontmatter with name {stem!r} and a description")
         names.add(stem)

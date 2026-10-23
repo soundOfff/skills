@@ -9,7 +9,7 @@ import pathlib
 import re
 import sys
 
-from validate import frontmatter
+from validate import frontmatter_scalars
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
@@ -29,7 +29,7 @@ def summary(desc: str) -> str:
 def rows(paths: list[pathlib.Path], source: dict[str, str] | None = None) -> list[str]:
     out = []
     for d in paths:
-        fm = frontmatter((d / "SKILL.md").read_text(encoding="utf-8")) or {}
+        fm = frontmatter_scalars((d / "SKILL.md").read_text(encoding="utf-8")) or {}
         how = "you type it" if fm.get("disable-model-invocation") == "true" else "you or the agent"
         cells = [f"`{d.name}`", summary(fm.get("description", "")), how]
         if source is not None:
