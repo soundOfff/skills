@@ -11,10 +11,12 @@ disable-model-invocation: true
 ## Start
 
 1. Load poteto-mode and follow it in full. Keep the absolute path of its `SKILL.md`, because every Builder dispatch carries it.
-   - Claude Code: the pstack folder is the `installPath` of the enabled `pstack@cursor-plugins` install. The session offers the `pstack:poteto-agent` agent type when it is enabled. Prefer the install for this repository over the user install:
+   - Claude Code: the pstack folder is the `installPath` recorded for `pstack@cursor-plugins` in `installed_plugins.json`. The session offers the `pstack:poteto-agent` agent type when it is enabled. Prefer the install for this repository over the user install:
 
      ```bash
-     jq -r --arg repo "$(git rev-parse --show-toplevel)" '.plugins["pstack@cursor-plugins"] // []
+     common="$(git rev-parse --path-format=absolute --git-common-dir)"
+     if [ "$(basename "$common")" = .git ]; then root="$(dirname "$common")"; else root="$(git rev-parse --show-toplevel)"; fi
+     jq -r --arg repo "$root" '.plugins["pstack@cursor-plugins"] // [] | if type == "array" then . else [.] end
        | (map(select(.projectPath == $repo)) + map(select(.scope == "user")))[0].installPath // empty' \
        ~/.claude/plugins/installed_plugins.json
      ```
@@ -59,7 +61,7 @@ The pipeline skills are human-invoked. A request that names a stage counts as th
 - **Settings.** Read the base branch, publish mode, merge strategy, forge, tracker, pull request template, closing reference, and Ready label from the `## Settings` table of `AGENTS.md`. They replace poteto-mode's defaults.
 - **Commands.** Use the gates in the `## Commands` table of `AGENTS.md`. Done means the full gate passed, or each gate that could not pass is reported with its output.
 - **Standards.** Tickets follow `docs/agents/ticket-standard.md`. Pull requests follow `docs/agents/pr-standard.md`, and the `Publish mode` setting replaces poteto-mode's rule to open every pull request ready. Tracker writes follow `docs/agents/issue-tracker.md`, where creating anything is denied until the user approves it.
-- **Publishing tracked work.** Tracked work implements an issue on the repository's tracker. poteto-mode's Feature, Bug fix, and Refactoring playbooks end with "Run Opening a PR". For tracked work, replace that step with "Stop at the issue's review boundary and suggest `/flow-to-pr <issue>`." Opening a PR stays only for untracked work.
+- **Publishing tracked work.** Tracked work implements an issue on the repository's tracker. Many poteto-mode playbooks, such as Feature, Bug fix, Refactoring, Perf issue, and Multi-phase plan, end by running Opening a PR. For tracked work, replace that step in every playbook with "Stop at the issue's review boundary and suggest `/flow-to-pr <issue>`." Opening a PR stays only for untracked work.
 - **Delegation.** Dispatch roles per [dispatch.md](references/dispatch.md). Code-writing delegates stay `pstack:poteto-agent`.
 - **Domain.** Name things with the vocabulary in `docs/agents/domain.md`. Settle new terms and decisions with `domain-modeling`.
 - **Writing.** Every issue body, pull request, report, and reply goes through `pstack:technical-writing` and `pstack:unslop`.

@@ -4,7 +4,7 @@
 
 <!-- One or two sentences first: what changed and why. Then the decisions worth surfacing. -->
 
-{{closing_reference}}
+<!-- For tracked work, end this section with the Closing reference from ## Settings in AGENTS.md, with the issue id filled in. -->
 
 ## How to review
 

@@ -13,9 +13,14 @@ argument-hint: '[machine]'
 
 ## Repo mode
 
-The profile is the managed block in `AGENTS.md`, a `CLAUDE.md` that loads it, the four files in `docs/agents/`, the forge's pull request template, and a `.gitignore` entry for `.flow/`. The block opens with `## Settings`, the one place that holds each answer below. The `docs/agents/` files name a setting's row and never repeat its value. The writer owns every file write. Never edit these files by hand during setup.
+The profile is the managed block in `AGENTS.md`, a `CLAUDE.md` that loads it, the four files in `docs/agents/`, the forge's pull request template, and a `.gitignore` entry for `.flow/`. The block opens with `## Settings`, the one place that holds each answer below. The `docs/agents/` files and the pull request template name a setting's row and never repeat its value. The writer owns every file write. Never edit these files by hand during setup.
 
-`<flow>` below is the `.flow/` folder that every worktree of the clone shares. It sits in the main worktree root, the parent folder of `git rev-parse --path-format=absolute --git-common-dir`.
+`<flow>` below is the `.flow/` ledger folder. In a normal clone it sits in the main worktree, and every linked worktree shares it. In a bare clone with worktrees, a submodule, or a separate git dir, the git dir is not inside a worktree, so `<flow>` sits at the root of the current worktree. Print it with:
+
+```bash
+common="$(git rev-parse --path-format=absolute --git-common-dir)"
+if [ "$(basename "$common")" = .git ]; then echo "$(dirname "$common")/.flow"; else echo "$(git rev-parse --show-toplevel)/.flow"; fi
+```
 
 ### 1. Explore
 
@@ -32,7 +37,7 @@ Read only. Change nothing. When `<flow>/setup.json` exists, it holds the answers
 | `sources` | The sources table below. Each value is `none` or the repository-relative paths that exist. |
 | `ready_label` | The tracker's labels: `gh label list`, `glab label list`, the Linear MCP server's `list_issue_labels`, or the `Labels:` lines under `.scratch/`. When an existing label clearly means ready for an agent to build, such as `agent-ready`, recommend it. Otherwise `ready-for-agent`. |
 
-Also read the existing `AGENTS.md` and whether it has a flow block, `CLAUDE.md` and whether it imports `@AGENTS.md`, whether either is a link and to what, `docs/agents/`, any pull request template, and `.gitignore`. For GitHub, check for a project board with `gh project list --owner <owner>`. A missing token scope is not a blocker. Note it and move on.
+Also read the existing `AGENTS.md` and whether it has a flow block, `CLAUDE.md` and whether it imports `@AGENTS.md`, whether either is a link and to what, `docs/agents/`, any pull request template, and `.gitignore`. For GitHub, check for a project board with `gh project list --owner <owner>`. A missing token scope is not a blocker. Note it and move on. Also note whether the repository has a user interface: a frontend framework or UI library in its manifests, stylesheets or a Tailwind config, a components folder, or native UI code such as SwiftUI, UIKit, or Android views.
 
 | Concern | Look for |
 | --- | --- |
@@ -77,7 +82,7 @@ Read the commands from the manifests:
 | `mvnw` or `pom.xml` | `./mvnw dependency:resolve` | `./mvnw test`, `./mvnw verify` |
 | `Makefile`, `justfile`, `Taskfile.yml` | a target named for the job | `make <target>`, `just <recipe>`, `task <name>` |
 
-- A script, target, or recipe the repository declares wins over a raw tool, because it carries the repository's flags. Match `package.json` scripts by name, such as `typecheck`, `type-check`, or `tsc` for `typecheck`, and `e2e` or `test:e2e` for `e2e`. Write them in the forms above, because the doctor checks that a `<manager> run <script>`, `make <target>`, or `just <recipe>` gate names one the repository declares.
+- A script, target, or recipe the repository declares wins over a raw tool, because it carries the repository's flags. Match `package.json` scripts by name, such as `typecheck`, `type-check`, or `tsc` for `typecheck`, and `e2e` or `test:e2e` for `e2e`. Write them in the forms above, because the doctor checks that a `<manager> run <script>`, `make <target>`, or `just <recipe>` gate names one the repository declares. A script gate with a workspace or prefix flag, such as `--workspaces`, `-w`, `--prefix`, `--filter`, `-F`, `-C`, `--dir`, or `yarn workspace <name> run`, runs a script that another package declares. The doctor reads only the root `package.json`, so it reports a WARN for such a gate, never a FAIL.
 - For Python, the `[tool.*]` sections of `pyproject.toml` name the tools, such as `ruff check .` for `lint`, `ruff format .` for `format`, `mypy` or `pyright` for `typecheck`, and `pytest` for `test` with `pytest <path>` for `test-file`.
 - CI config (`.github/workflows/`, `.gitlab-ci.yml`) shows which commands the team gates on. When CI and a script disagree, prefer what CI runs.
 - A gate the repository has no command for reads `n/a`. Never invent a command or add a tool to fill a gate.
@@ -95,6 +100,7 @@ Present the findings as one table of answer, value, and evidence. Then ask, in o
 - The Ready label, only when exploration found an existing label that may mean ready for an agent. Recommend that label. `/flow-to-issues` applies the Ready label to every work item it publishes, and `/flow-build` picks candidates by it.
 - Each gate with no inferable command. Recommend the closest command found, or `n/a`.
 - Whether flow skills should maintain a project board, only when exploration found one. Recommend no.
+- The design authority, only when the repository has a user interface and the `Design system` source is `none`. Offer four answers: build a first `DESIGN.md` from the code (recommend it when screens exist), seed one from five questions (recommend it when nothing is built yet), paste an existing one, or skip. Without a design authority, `/flow-design-check` can judge UI changes only against the nearest comparable screens.
 
 Completion: the user answered the round, and every answer has a value.
 
@@ -119,17 +125,30 @@ Create `<flow>` when it is missing and write the answers to `<flow>/setup.json`:
 
 The writer derives the `Closing reference` from the tracker, with `linear_team` as the Linear id prefix, and the `Pull request template` from the forge. Leave `board` empty unless the user asked flow skills to maintain a board. Then fill it with the Markdown body of the `## Board` section in `docs/agents/issue-tracker.md`. It names the board and its link, the command that adds an issue, the status field with its values for to do, in progress, and done, and every other field a skill must set, with its allowed values and the command that sets it. Skills read the section's presence as a requirement, so an empty `board` leaves it out.
 
-Run `python3 <skill>/scripts/write_profile.py <repo> <flow>/setup.json --dry-run`. It prints one line per file. `create` and `update` will be written. `same` needs nothing. `skip` is left alone on purpose, with the reason. `keep` means an existing `docs/agents/` file differs from the template, and the writer prints its diff. A path shown as `AGENTS.md -> CLAUDE.md` is a link, and the line says what happens to it. Show each `keep` diff to the user and ask yes or no for each file in one round. Exit status 2 means a wrong answer, broken markers, or a link out of the repository. The message names it. Fix it and run again.
+Run `python3 <skill>/scripts/write_profile.py <repo> <flow>/setup.json --dry-run`. It prints one line per file. `create` and `update` will be written. `same` needs nothing. `skip` is left alone on purpose, with the reason. `keep` means an existing `docs/agents/` file differs from the template, and the writer prints its diff. A path shown as `AGENTS.md -> CLAUDE.md` is a link, and the line says what happens to it. Show each `keep` diff to the user and ask yes or no for each file in one round. Exit status 2 means a wrong answer, broken markers, a link loop, a link out of the repository, or a file the writer cannot write, such as one under a path that is a file instead of a folder. The writer checks every target before the first write, so exit status 2 leaves the repository untouched. The message names the problem. Fix it and run again.
 
 Then run the same command without `--dry-run`, adding `--overwrite <path>` for each yes. The writer replaces only the text between the begin marker `<!-- flow:begin v=<version> -->` and `<!-- flow:end -->` in an existing `AGENTS.md`, or appends the block when there is none. The version is a hash of this skill's templates. It changes no byte outside the markers and keeps each file's line endings. It creates `CLAUDE.md` only when missing and otherwise adds an `@AGENTS.md` line when the import is absent. Tell the user when it added that line. A link stays a link, and the writer edits the file it points to. When `CLAUDE.md` and `AGENTS.md` are one file through a link, nothing is added. It writes the pull request template only when the forge has none: `.github/pull_request_template.md` for GitHub and `.gitlab/merge_request_templates/Default.md` for GitLab. It appends `.flow/` to `.gitignore` once. A second run with the same answers prints `nothing to change`.
 
 Completion: the writer exited 0, and every `keep` file has the user's answer.
 
-### 4. Check and hand off
+### 4. Design authority
+
+Run this step only for the build, seed, or paste answer from step 2. A `DESIGN.md` that already exists is never replaced. Point the `Design system` source at it instead.
+
+- **Build from the code.** Follow the scan mode of the `document` command of the `impeccable` skill, which this kit ships. Its instructions are `reference/document.md` in the impeccable skill's folder, which sits next to this skill's installed folder (for example `~/.claude/skills/impeccable`), or at `vendor/skills/impeccable` in the kit. Its script paths assume `.agents/skills/impeccable`, so run them from the folder you found. It extracts the tokens and components the code already uses, asks the few questions that code cannot answer, and writes `DESIGN.md` at the repository root in the Google Stitch format, with a `DESIGN.json` sidecar.
+- **Seed from five questions.** For a repository with no screens yet, run the same command in seed mode. It writes a minimal `DESIGN.md` marked `<!-- SEED -->`. Run scan mode again once screens exist.
+- **Paste.** Write the pasted text to `DESIGN.md` at the repository root, byte for byte, and never edit it. Check it against the Stitch format: YAML frontmatter with the tokens, then `## Overview`, `## Colors`, `## Typography`, `## Elevation`, `## Components`, and `## Do's and Don'ts`, in that order. Report each missing part, and suggest the `document` command to fill it later. A `DESIGN.md` exported from Google Stitch already has this shape.
+
+Then set `"Design system": "DESIGN.md"` in `<flow>/setup.json` and run the writer again. Only the managed block changes.
+
+Completion: `DESIGN.md` exists at the repository root and the `Design system` source names it, or the developer chose to skip.
+
+### 5. Check and hand off
 
 Run `python3 <skill>/scripts/doctor.py repo <repo>` and paste its output in the reply.
 
 - A FAIL that comes from an answer, such as a missing source path or a gate whose script, target, or recipe the repository does not declare, means a wrong answer. Fix the answer and return to step 3.
+- A WARN that a gate's declaration could not be checked comes from a workspace or prefix flag. Keep the command and report the WARN.
 - A FAIL for a gate whose tool is not on PATH stays in the report. Name the tool and leave installing it to the user, because the golden rules forbid adding tools unasked.
 - A WARN on the flow block version means this skill's templates changed since the block was written. Re-run `/flow-setup`.
 - A FAIL for a `CLAUDE.md` that repeats the flow block, a WARN for a leftover `docs/agents/triage-labels.md`, and text outside the managed block that repeats or contradicts it, such as an older commands list, go in the report with the doctor's fix. Never edit them.
@@ -139,7 +158,7 @@ Leave every change uncommitted. Tell the user how to review and commit it on a b
 ```bash
 git status --short && git diff
 git switch -c chore/flow-setup
-git add AGENTS.md CLAUDE.md .gitignore docs/agents <pull request template path>
+git add AGENTS.md CLAUDE.md .gitignore docs/agents <pull request template path> <DESIGN.md and DESIGN.json, when step 4 wrote them>
 git commit -m "chore: add the flow repository profile"
 ```
 

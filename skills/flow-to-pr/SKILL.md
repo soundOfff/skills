@@ -113,7 +113,11 @@ branch, read its exact SHA with
 git push --force-with-lease=refs/heads/<branch>:<expected-remote-sha> -u origin <branch>
 ```
 
-Never retry with an unpinned lease. Create or update one pull request against
+Never retry with an unpinned lease. When the `Forge` setting is `none`, the
+repository has no forge to publish to. Do not push. Record the verified local
+branch, its HEAD SHA, and `local-only` as the publication, set
+`status: published`, and tell the developer the branch is ready for their local
+review and merge. Otherwise create or update one pull request against
 `<base>` on the forge that the `Forge` setting names, in the `Publish mode`
 setting, which is `draft` or `ready`, and `draft` when the setting is missing.
 An existing draft stays a draft. Then verify its remote head SHA, base, draft
@@ -121,8 +125,9 @@ state, title, body, and closing reference. Record the PR number and URL and set
 `status: published`.
 
 Completion: the remote branch equals the pinned HEAD and one verified pull
-request in the publish mode is recorded with `status: published`, or the exact
-push or publication failure is recorded as `blocked`.
+request in the publish mode is recorded with `status: published`, a
+`local-only` publication is recorded for a repository without a forge, or the
+exact push or publication failure is recorded as `blocked`.
 
 ## 5. Recommend optional review
 

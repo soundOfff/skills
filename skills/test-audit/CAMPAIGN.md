@@ -98,8 +98,8 @@ on the same harness.
 
 ## 8. Reconcile and hand off
 
-Campaigns outlive many base-branch commits. Merge the base branch rather than
-rebasing a long, many-commit campaign. When the base branch modified a file the
+Campaigns outlive many base-branch commits. Rebase onto the base branch often,
+as the repository's golden rules require, so each rebase stays small. When the base branch modified a file the
 campaign deleted, keep the deletion. Port the new contract into the keeper
 instead, and confirm every new regression the base branch added still has a
 home. Rerun the whole

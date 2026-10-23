@@ -46,6 +46,24 @@ Read the base and target versions of every changed design-authority file. A
 current written rule outranks precedent. The nearest comparable UI supplies
 precedent only where written authority is silent.
 
+When the `Design system` row reads `none`, record one decision in
+**Decisions**: the repository has no design authority, and the developer can
+create one with the design step of `/flow-setup`. Classify hunks by precedent
+until it exists.
+
+When the authority is a `DESIGN.md` in the Google Stitch format (YAML token
+frontmatter, then `## Overview`, `## Colors`, `## Typography`, `## Elevation`,
+`## Components`, and `## Do's and Don'ts`), look each drift axis up here:
+
+| Drift axis | Where the rule lives |
+| --- | --- |
+| Token | the frontmatter `colors`, `typography`, `rounded`, and `spacing`, with `## Colors`, `## Typography`, and `## Elevation` |
+| Primitive | the frontmatter `components` and `## Components` |
+| Pattern | `## Overview`, `## Components`, and `## Do's and Don'ts` |
+| State | the variant keys in the frontmatter `components`, such as `button-primary-hover`, and `## Components` |
+| Responsive | `## Overview`, where the format folds layout and spacing |
+| Authority | the frontmatter against the code's token sources, and any `DESIGN.json` sidecar beside it |
+
 Map every UI-affecting hunk to the exact authority or precedent that establishes
 its expected result. A change to design authority is intentional only when the
 issue authorizes it, the same PR updates every required source and generated
