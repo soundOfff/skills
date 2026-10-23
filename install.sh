@@ -6,26 +6,32 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 CODEX_DIR="${CODEX_DIR:-$HOME/.codex}"
 BACKUP="$REPO/.install-backup/$(date +%Y%m%d-%H%M%S)"
+FETCHED="$REPO/.agents/skills"
+DOTAGENTS="@sentry/dotagents@3.4.0"
 
 DO_CLAUDE=1
 DO_CODEX=1
+DO_FETCH=1
 DRY=0
 
 usage() {
   cat <<'EOF'
-usage: ./install.sh [--dry-run] [--claude-only | --codex-only]
+usage: ./install.sh [--dry-run] [--no-fetch] [--claude-only | --codex-only]
 
   --dry-run      print what would change, change nothing
+  --no-fetch     link the third-party skills already fetched, fetch nothing
   --claude-only  link into Claude Code only
   --codex-only   link into Codex only
 
 Targets: $CLAUDE_DIR (default ~/.claude) and $CODEX_DIR (default ~/.codex).
+Third-party skills come from agents.toml. Fetching them needs Node 20 or later.
 EOF
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY=1 ;;
+    --no-fetch) DO_FETCH=0 ;;
     --claude-only) DO_CODEX=0 ;;
     --codex-only) DO_CLAUDE=0 ;;
     -h | --help) usage; exit 0 ;;
@@ -39,10 +45,47 @@ linked=0 relinked=0 backed_up=0 pruned=0 unchanged=0
 say() { printf '%s\n' "$*"; }
 act() { [ $DRY -eq 1 ] || "$@"; }
 
+pinned_names() {
+  [ -f "$REPO/agents.toml" ] || return 0
+  awk '/^\[\[skills\]\]/ { s = 1; next } /^\[/ { s = 0 } s && /^name *= *"/ { sub(/^name *= *"/, ""); sub(/".*$/, ""); print }' "$REPO/agents.toml"
+}
+
+fetch_pinned() {
+  local out
+  say ""
+  say "agents.toml -> ${FETCHED#"$REPO"/}"
+  if [ $DO_FETCH -eq 0 ]; then
+    say "  skip    fetch (--no-fetch)"
+  elif [ $DRY -eq 1 ]; then
+    say "  fetch   $(pinned_names | wc -l | tr -d ' ') pinned skills with $DOTAGENTS"
+  elif ! command -v npx >/dev/null 2>&1; then
+    say "  skip    fetch: npx is not on PATH, install Node 20 or later"
+  elif out="$(cd "$REPO" && npx --yes "$DOTAGENTS" --project install 2>&1)"; then
+    say "  fetched $(pinned_names | wc -l | tr -d ' ') pinned skills"
+  else
+    printf '%s\n' "$out" | sed 's/^/    /'
+    say "  failed  fetch, so only skills fetched before are linked"
+  fi
+}
+
 skill_sources() {
-  local d
-  for d in "$REPO"/skills/*/ "$REPO"/vendor/skills/*/; do
+  local d name
+  for d in "$REPO"/skills/*/; do
     [ -f "$d/SKILL.md" ] && printf '%s\t%s\n' "$(basename "$d")" "${d%/}"
+  done
+  for name in $(pinned_names); do
+    if [ -f "$FETCHED/$name/SKILL.md" ] || { [ $DRY -eq 1 ] && [ $DO_FETCH -eq 1 ]; }; then
+      printf '%s\t%s\n' "$name" "$FETCHED/$name"
+    fi
+  done
+  return 0
+}
+
+unfetched() {
+  local name
+  [ $DRY -eq 1 ] && [ $DO_FETCH -eq 1 ] && return 0
+  for name in $(pinned_names); do
+    [ -f "$FETCHED/$name/SKILL.md" ] || printf '%s ' "$name"
   done
   return 0
 }
@@ -111,7 +154,9 @@ install_set() {
 
 [ $DRY -eq 1 ] && say "dry run: nothing will change"
 
+fetch_pinned
 skills="$(skill_sources)"
+missing="$(unfetched)"
 if [ $DO_CLAUDE -eq 1 ]; then
   install_set "$CLAUDE_DIR/skills" claude-skills "$skills"
   install_set "$CLAUDE_DIR/agents" claude-agents "$(agent_sources claude md)"
@@ -125,4 +170,8 @@ say ""
 say "linked $linked, relinked $relinked, backed up $backed_up, pruned $pruned, unchanged $unchanged"
 if [ $DRY -eq 0 ] && [ $backed_up -gt 0 ]; then
   say "displaced files are in $BACKUP"
+fi
+if [ -n "$missing" ]; then
+  say "not fetched, so not linked: ${missing% }"
+  [ $DO_FETCH -eq 0 ] || exit 1
 fi

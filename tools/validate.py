@@ -12,7 +12,7 @@ import tomllib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 FIRST_PARTY = ROOT / "skills"
-VENDOR = ROOT / "vendor" / "skills"
+MANIFEST = ROOT / "agents.toml"
 AGENTS = ROOT / "agents"
 
 PSTACK = {
@@ -43,6 +43,8 @@ FENCE = re.compile(r"^```.*?^```", re.M | re.S)
 SLASH = re.compile(r"(?:^|[\s`(\"'])/([a-z][a-z0-9-]{2,}(?::[a-z0-9-]+)?)(?![\w/.-])")
 PSTACK_REF = re.compile(r"\bpstack:([a-z0-9-]+)")
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
+GITHUB_REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+COMMIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -81,16 +83,53 @@ def frontmatter_scalars(text: str) -> dict[str, str] | None:
 
 def skill_dirs() -> dict[str, pathlib.Path]:
     found: dict[str, pathlib.Path] = {}
-    for base in (FIRST_PARTY, VENDOR):
-        for d in sorted(p for p in base.glob("*") if p.is_dir()):
-            skill = d / "SKILL.md"
-            if not skill.is_file():
-                errors.append(f"{rel(d)}: directory has no SKILL.md")
-                continue
-            if d.name in found:
-                errors.append(f"{rel(d)}: name {d.name!r} also used by {rel(found[d.name])}")
-            found[d.name] = d
+    for d in sorted(p for p in FIRST_PARTY.glob("*") if p.is_dir()):
+        if not (d / "SKILL.md").is_file():
+            errors.append(f"{rel(d)}: directory has no SKILL.md")
+            continue
+        found[d.name] = d
     return found
+
+
+# install.sh and the doctor read names line by line, because neither bash nor Python 3.9 parses TOML.
+def line_names(text: str) -> list[str]:
+    names, in_skill = [], False
+    for line in text.splitlines():
+        if line.startswith("["):
+            in_skill = line.startswith("[[skills]]")
+        elif in_skill and (m := re.match(r'name *= *"([^"]*)"', line)):
+            names.append(m.group(1))
+    return names
+
+
+def pinned_skills(first_party: dict[str, pathlib.Path]) -> set[str]:
+    try:
+        text = MANIFEST.read_text(encoding="utf-8")
+        manifest = tomllib.loads(text)
+    except (OSError, tomllib.TOMLDecodeError) as e:
+        errors.append(f"agents.toml: cannot read: {e}")
+        return set()
+    if line_names(text) != [str(entry.get("name", "")) for entry in manifest.get("skills", [])]:
+        errors.append('agents.toml: start each entry with [[skills]] and its name line with name = "...", '
+                      "at the start of the line, so install.sh reads the same names")
+    names: set[str] = set()
+    for entry in manifest.get("skills", []):
+        name = str(entry.get("name", ""))
+        where = f"agents.toml skill {name!r}"
+        if not NAME_RE.match(name):
+            errors.append(f"{where}: name must be lowercase letters, digits and hyphens; wildcards are not allowed")
+        if not GITHUB_REPO.match(str(entry.get("source", ""))):
+            errors.append(f"{where}: source must be a GitHub owner/repo, with the commit in ref")
+        if not COMMIT_SHA.match(str(entry.get("ref", ""))):
+            errors.append(f"{where}: ref must be a full commit SHA, because dotagents re-resolves branches and tags")
+        if not entry.get("path"):
+            errors.append(f"{where}: path must name the skill's folder in the source repository")
+        if name in first_party:
+            errors.append(f"{where}: name also used by {rel(first_party[name])}")
+        if name in names:
+            errors.append(f"{where}: listed twice")
+        names.add(name)
+    return names
 
 
 def check_frontmatter(skills: dict[str, pathlib.Path]) -> None:
@@ -124,8 +163,8 @@ def authored_docs():
     yield from (ROOT / n for n in ("README.md", "AGENTS.md", "THIRD_PARTY_NOTICES.md") if (ROOT / n).exists())
 
 
-def check_links_and_refs(skills: dict[str, pathlib.Path], agent_names: set[str]) -> None:
-    known = set(skills) | agent_names | HARNESS_COMMANDS
+def check_links_and_refs(skill_names: set[str], agent_names: set[str]) -> None:
+    known = skill_names | agent_names | HARNESS_COMMANDS
     for p in authored_docs():
         text = p.read_text(encoding="utf-8")
         for target in LINK.findall(FENCE.sub("", text)):
@@ -291,18 +330,20 @@ def check_generated() -> None:
 
 def main() -> int:
     skills = skill_dirs()
+    pinned = pinned_skills(skills)
     check_frontmatter(skills)
     agent_names = check_agents()
     check_generated()
     check_script_tests()
-    check_links_and_refs(skills, agent_names)
+    check_links_and_refs(set(skills) | pinned, agent_names)
     check_profile_refs()
     check_leaks()
     for w in warnings:
         print(f"warning: {w}")
     for e in errors:
         print(f"error: {e}")
-    print(f"{len(skills)} skills, {len(agent_names)} agents, {len(errors)} errors, {len(warnings)} warnings")
+    print(f"{len(skills)} skills, {len(pinned)} pinned third-party skills, {len(agent_names)} agents, "
+          f"{len(errors)} errors, {len(warnings)} warnings")
     return 1 if errors else 0
 
 

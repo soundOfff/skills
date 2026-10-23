@@ -66,7 +66,7 @@ After publication, `/flow-code-check` reviews code and `/flow-design-check` revi
 | `/flow-build` | Build one Ready issue with focused agents. |
 | `/flow-to-pr` | Publish one implemented issue as a pull request. |
 | `/flow-code-check` | Review a change for correctness and solution quality. |
-| `/flow-design-check` | Review a UI change for design drift. |
+| `/flow-design-check` | Review a UI change for design drift and visual antipatterns. |
 | `/flow-adv-review` | Challenge a change with a second model, only when asked. |
 | `/flow-setup` | Rewrite this block and refresh `docs/agents/`. |
 

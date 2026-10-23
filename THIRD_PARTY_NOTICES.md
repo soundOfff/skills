@@ -1,17 +1,12 @@
 # Third-party notices
 
-Some skills in this kit are copied or adapted from other projects. Each project's license covers its material. Vendored skills under `vendor/skills/` are verbatim copies. Adapted skills under `skills/` are modified copies.
+Some skills in this kit are adapted from other projects. Each project's license covers its material. Adapted skills under `skills/` are modified copies. The third-party skills pinned in `agents.toml` are not part of this repository. `install.sh` fetches them from upstream, under their own licenses.
 
 | Upstream | License | Copyright notice | Skills |
 | --- | --- | --- | --- |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Copyright (c) 2026 Matt Pocock | Vendored: `grill-me`, `grill-with-docs`, `handoff`, `resolving-merge-conflicts`. Adapted: `grilling`, `flow-tdd`, `diagnose`, `prototype`, `domain-modeling`, `research`. |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Copyright (c) 2026 Matt Pocock | Adapted: `grilling`, `flow-tdd`, `diagnose`, `prototype`, `domain-modeling`, `research`. |
 | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | MIT, declared in the skill's frontmatter | Vercel | Adapted: `react-best-practices`, `react-composition-patterns`. |
 | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | Copyright (c) 2026 OpenClaw Foundation | Adapted: `test-audit`. |
-| [jakubkrehel/skills](https://github.com/jakubkrehel/skills) | MIT | Copyright (c) 2026 Jakub Krehel | Vendored: `better-accessibility`, `better-colors`, `better-interface`, `better-layout`, `better-typography`, `better-ui`, `better-writing`. |
-| [jakubkrehel/make-interfaces-feel-better](https://github.com/jakubkrehel/make-interfaces-feel-better) | MIT | Copyright (c) 2026 Jakub Krehel | Vendored: `make-interfaces-feel-better`. |
-| [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | MIT | Copyright (c) 2025 | Vendored: `test-master`. |
-| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 | See `vendor/skills/impeccable/LICENSE` | Vendored: `impeccable`. |
-| [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | Apache-2.0 | See `vendor/skills/frontend-design/LICENSE.txt` | Vendored: `frontend-design`. |
 
 ## MIT license
 
