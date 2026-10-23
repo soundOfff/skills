@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -51,7 +52,15 @@ async function main() {
 	);
 }
 
-if (resolve(process.argv[1] ?? "") === SCRIPT_PATH) {
+function invokedPath() {
+	try {
+		return realpathSync(resolve(process.argv[1] ?? ""));
+	} catch {
+		return "";
+	}
+}
+
+if (invokedPath() === realpathSync(SCRIPT_PATH)) {
 	main().catch((error) => {
 		process.stderr.write(`${attemptError(error)}\n`);
 		process.exitCode = 1;

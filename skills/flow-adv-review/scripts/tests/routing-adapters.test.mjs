@@ -89,6 +89,15 @@ describe("fresh review adapters", () => {
 		assert.ok(!invocation.args.includes("resume"));
 	});
 
+	it("keeps the reviewed repository's instructions out of the Codex reviewer", () => {
+		const invocation = buildHarnessInvocation("codex", invocationOptions);
+		assertIncludesAll(invocation.args, ["--ignore-user-config", "--ignore-rules", "project_doc_max_bytes=0"]);
+		const isolation = harnessIsolationEvidence("codex");
+		assert.equal(isolation.customizations, "user-config-rules-and-project-docs-ignored");
+		assert.equal(isolation.instruction_source, "runner-plus-codex-defaults");
+		assert.throws(() => harnessIsolationEvidence("cursor"), /Unsupported harness: cursor/);
+	});
+
 	it("starts Claude with only runner instructions and no tool access", () => {
 		const invocation = buildHarnessInvocation("claude", invocationOptions);
 		assertIncludesAll(invocation.args, [

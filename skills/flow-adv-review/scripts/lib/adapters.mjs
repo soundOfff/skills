@@ -47,6 +47,10 @@ export function buildHarnessInvocation(harness, options) {
 			args: [
 				"exec",
 				"--ephemeral",
+				"--ignore-user-config",
+				"--ignore-rules",
+				"--config",
+				"project_doc_max_bytes=0",
 				"--sandbox",
 				"read-only",
 				"--cd",
@@ -102,19 +106,13 @@ export function harnessIsolationEvidence(harness) {
 	if (harness === "codex") {
 		return {
 			session: "fresh-ephemeral",
-			customizations: "harness-defaults-may-apply",
-			instruction_source: "runner-plus-harness-defaults",
+			customizations: "user-config-rules-and-project-docs-ignored",
+			instruction_source: "runner-plus-codex-defaults",
 			tool_access: "read-only-sandbox",
 			target_evidence: "runner-collected-bounded",
 		};
 	}
-	return {
-		session: "fresh-nonpersistent",
-		customizations: "harness-defaults-may-apply",
-		instruction_source: "runner-plus-harness-defaults",
-		tool_access: "plan-mode",
-		target_evidence: "runner-collected-bounded",
-	};
+	throw new Error(`Unsupported harness: ${harness}`);
 }
 
 function stripFence(value) {

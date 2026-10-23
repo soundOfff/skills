@@ -66,7 +66,9 @@ Claude runs with `--safe-mode`, a runner-owned system prompt, and an empty tool
 set. User and project `CLAUDE.md`, auto-memory, skills, plugins, hooks, MCP
 servers, shell commands, and network-capable tools are unavailable, while normal
 OAuth and keychain authentication remains usable. Codex runs ephemerally in its
-read-only sandbox. Local job metadata and results live
+read-only sandbox and ignores the user's config, its rules, and the reviewed
+repository's `AGENTS.md`, so a change under review cannot instruct its own
+reviewer. Local job metadata and results live
 under the current worktree's `.flow/reviews/`, the one per-worktree exception in
 [Where ledgers live](../flow-mode/references/lifecycle.md#where-ledgers-live).
 The runner refuses to start until `.flow/` is git-ignored. It refuses another

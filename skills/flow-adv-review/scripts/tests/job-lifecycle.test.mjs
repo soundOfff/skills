@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { targetFingerprint } from "../lib/git.mjs";
@@ -10,6 +10,23 @@ import { targetFingerprint } from "../lib/git.mjs";
 const runner = fileURLToPath(new URL("../run-review.mjs", import.meta.url));
 
 describe("adversarial review job lifecycle", () => {
+	it("runs the same when started through a symlinked skill folder", () => {
+		const temporary = mkdtempSync(join(tmpdir(), "flow-adv-symlink-"));
+		try {
+			const linked = join(temporary, "flow-adv-review");
+			symlinkSync(dirname(dirname(runner)), linked);
+			const run = (script) =>
+				spawnSync(process.execPath, [script, "status", "no-such-job"], { cwd: temporary, encoding: "utf8" });
+			const direct = run(runner);
+			const viaLink = run(join(linked, "scripts", "run-review.mjs"));
+			assert.notEqual(direct.status, 0);
+			assert.equal(viaLink.status, direct.status);
+			assert.equal(viaLink.stderr, direct.stderr);
+		} finally {
+			rmSync(temporary, { recursive: true, force: true });
+		}
+	});
+
 	it("fails dead and expired jobs and refuses a live duplicate fingerprint", () => {
 		const temporary = mkdtempSync(join(tmpdir(), "flow-adv-lifecycle-"));
 		const repository = join(temporary, "repo");
