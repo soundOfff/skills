@@ -101,8 +101,13 @@ Read-only role agents do the investigation, each on a model pinned in its defini
 
 | Skill | What it does | Invoked by | Upstream |
 | --- | --- | --- | --- |
+| `better-accessibility` | Reviews and fixes keyboard and focus behavior, ARIA, accessible names, forms, screen-reader announcements, motion and zoom in your project against WCAG 2.2. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
+| `better-colors` | Helps you build and check a color system for your project. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
 | `better-interface` | Combines all of the `better-*` skills into a single review across accessibility, layout, writing, typography, color and UI polish. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
+| `better-layout` | Helps with grouping, alignment, reading order, responsive structure and room for translated text, so a layout holds up when it is resized, translated or mirrored. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
+| `better-typography` | Sets and reviews how text renders in your product, from the type scale and spacing to font features, wrapping, truncation and punctuation. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
 | `better-ui` | Polishes and improves the UI in your project. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
+| `better-writing` | Writes and reviews your interface copy, from labels and errors to empty states and confirmations, so it matches your product's voice and tells people what to do next. | you or the agent | [jakubkrehel/skills](https://github.com/jakubkrehel/skills) |
 | `frontend-design` | Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. | you or the agent | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) |
 | `grill-me` | A relentless interview to sharpen a plan or design. | you type it | [mattpocock/skills](https://github.com/mattpocock/skills) |
 | `grill-with-docs` | A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go. | you type it | [mattpocock/skills](https://github.com/mattpocock/skills) |
