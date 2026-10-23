@@ -5,6 +5,7 @@ Run from anywhere: python3 tools/validate.py
 
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -22,6 +23,7 @@ PSTACK = {
     "make-bot-ui", "make-pr-easy-to-review", "no-comments", "poteto-help", "poteto-mode", "recall",
     "reflect", "setup-pstack", "sharpen", "show-me-your-work", "swarm", "tdd", "teach",
     "technical-writing", "typescript-best-practices", "unslop", "what-did-i-get-done", "why",
+    "poteto-agent", "comment-sicko",
 }
 PSTACK |= {
     f"principle-{p}" for p in (
@@ -141,6 +143,42 @@ def check_links_and_refs(skills: dict[str, pathlib.Path], agent_names: set[str])
                 errors.append(f"{rel(p)}: unknown pstack skill pstack:{ref}")
 
 
+PROFILE_FILE = re.compile(r"(?:docs/agents/([a-z-]+)\.md|\bAGENTS\.md\b)")
+HEADING_REF = re.compile(r"`(##\s[^`]+)`")
+
+
+def template_headings() -> dict[str, set[str]] | None:
+    template = FIRST_PARTY / "flow-setup" / "template"
+    if not template.exists():
+        return None
+    heads: dict[str, set[str]] = {}
+    for p in template.rglob("*.md"):
+        found = {line.strip() for line in p.read_text(encoding="utf-8").splitlines() if line.startswith("## ")}
+        key = "AGENTS" if p.name == "agents-block.md" else p.stem
+        if key.startswith("issue-tracker-"):
+            key = "issue-tracker"
+        heads[key] = heads.get(key, set()) | found
+    return heads
+
+
+def check_profile_refs() -> None:
+    """A skill that cites `## Heading` next to a profile file must name a heading the template writes."""
+    heads = template_headings()
+    if heads is None:
+        return
+    for p in text_files(FIRST_PARTY):
+        if p.suffix != ".md" or p.is_relative_to(FIRST_PARTY / "flow-setup" / "template"):
+            continue
+        for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            files = ["AGENTS" if m.group(1) is None else m.group(1) for m in PROFILE_FILE.finditer(line)]
+            refs = [h.strip() for h in HEADING_REF.findall(line)]
+            if not files or not refs:
+                continue
+            for ref in refs:
+                if not any(ref in heads.get(f, set()) for f in files):
+                    errors.append(f"{rel(p)}:{n}: `{ref}` is not a heading of {', '.join(sorted(set(files)))} in the flow-setup template")
+
+
 def leak_patterns() -> list[tuple[re.Pattern, str]]:
     path = ROOT / "tools" / "leak-patterns.local"
     if not path.exists():
@@ -199,19 +237,38 @@ def check_agents() -> set[str]:
     for stem in claude:
         if stem.startswith("flow-") and stem not in codex:
             errors.append(f"agents/claude/{stem}.md: flow role has no agents/codex/{stem}.toml")
-    builder = ROOT / "tools" / "build_agents.py"
-    if builder.exists():
-        r = subprocess.run([sys.executable, str(builder), "--check"], capture_output=True, text=True)
-        if r.returncode != 0:
-            errors.append(f"tools/build_agents.py --check failed: {(r.stdout + r.stderr).strip()}")
     return names
+
+
+def check_script_tests() -> None:
+    tests = sorted(str(p.relative_to(ROOT)) for p in FIRST_PARTY.glob("*/scripts/tests/*.test.mjs"))
+    if not tests:
+        return
+    if shutil.which("node") is None:
+        warnings.append("node is not on PATH, so the skill script tests did not run")
+        return
+    r = subprocess.run(["node", "--test", *tests], cwd=ROOT, capture_output=True, text=True)
+    if r.returncode != 0:
+        errors.append(f"node --test failed for skill scripts:\n{(r.stdout + r.stderr).strip()[-2000:]}")
+
+
+def check_generated() -> None:
+    for script in ("build_agents.py", "readme_catalog.py"):
+        path = ROOT / "tools" / script
+        if path.exists():
+            r = subprocess.run([sys.executable, str(path), "--check"], capture_output=True, text=True)
+            if r.returncode != 0:
+                errors.append(f"tools/{script} --check failed: {(r.stdout + r.stderr).strip()}")
 
 
 def main() -> int:
     skills = skill_dirs()
     check_frontmatter(skills)
     agent_names = check_agents()
+    check_generated()
+    check_script_tests()
     check_links_and_refs(skills, agent_names)
+    check_profile_refs()
     check_leaks()
     for w in warnings:
         print(f"warning: {w}")
