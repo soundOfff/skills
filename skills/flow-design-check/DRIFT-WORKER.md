@@ -41,6 +41,14 @@ issue authorizes it, the same PR updates every required source and generated
 artifact, and a changed decision has its ADR effect resolved. An absent or
 conflicting answer is a design decision, not permission to infer a new rule.
 
+When a link or CTA changes label, destination, or placement, search nearby UI
+tests for the old label, destination, or a selector for that control. Read the
+matching assertion in context. If it still expects the old behavior and the
+authority leaves the change unresolved, record a **Decisions** row with the
+assertion's `path:line` and the specific choice to settle. Record whether you
+inspected or ran the test. Keep this decision alongside any independent
+`DRIFT` finding on the same hunk.
+
 Completion: every UI-affecting hunk has an authority `path:line`, an evidenced
 precedent, or one explicit unresolved design question. Every changed authority
 file has its downstream effects accounted for.

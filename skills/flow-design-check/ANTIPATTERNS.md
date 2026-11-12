@@ -1,26 +1,30 @@
 # Visual design antipatterns
 
-A catalog of universal interface antipatterns for the antipattern worker of
-`/flow-design-check`. Each entry names an observable failure, how to detect it
-in a capture or in the diff, the fix, a grade, and the skills that flag it. The
-catalog says nothing about any one design system. Whether a change matches the
-repository's own rules is the drift worker's axis.
+A catalog of interface defects and review cues for the antipattern worker of
+`/flow-design-check`. Each entry names a symptom, how to investigate it in a
+capture or diff, a correction, a default grade, and its sources. The drift
+worker checks whether the change matches the repository's design system.
 
 ## How to read an entry
 
 ```text
-### TY-01 Body text below 16px on mobile
+### <ID> Entry title
 Symptom: what a user or reviewer sees
-Detect: the concrete cues, values, and properties that prove it
+Detect: cues to investigate and conditions that confirm the defect
 Fix: the correction
 Grade: BLOCKING | MAJOR | POLISH. Sources: the skills that flag it.
 ```
 
 Ids are stable. Cite them in findings as `TY-01`. Never renumber an entry. A
 new entry takes the next number in its category. `BLOCKING` means unusable,
-inaccessible, or misleading for some users. `MAJOR` means clearly wrong to a
-trained eye and worth fixing before merge. `POLISH` means a craft detail that
-never changes a verdict on its own.
+inaccessible, or seriously misleading for some users. `MAJOR` means a material
+problem with a user task, such as difficulty finding an action or comparing
+options. `POLISH` means a craft detail that never changes a verdict on its own.
+Grades are defaults for confirmed defects. A count, font name, CSS property,
+or threshold from a design skill is a cue to investigate. To assign `MAJOR`
+or `BLOCKING`, show the user consequence or the exact failure of an applicable
+requirement, including its exceptions. Use `POLISH` for a concrete craft issue
+without material impact. Skip a cue with no observed issue.
 
 Categories overlap on purpose. Contrast appears under color and under
 accessibility, and motion safety appears under motion and under accessibility.
@@ -28,26 +32,31 @@ Cite the entry whose consequence you observed, and cite one id per defect.
 
 ## Categories
 
-| Prefix | Category | Entries |
-| --- | --- | --- |
-| `HI` | Hierarchy | 29 |
-| `LA` | Layout and spacing | 31 |
-| `TY` | Typography | 59 |
-| `CO` | Color and contrast | 41 |
-| `SU` | Surfaces and depth | 30 |
-| `IC` | Icons and imagery | 34 |
-| `MO` | Motion | 38 |
-| `IN` | Interaction and feedback | 44 |
-| `ST` | Component states | 26 |
-| `FO` | Forms | 42 |
-| `NA` | Navigation and information architecture | 51 |
-| `CP` | Content and copy | 60 |
-| `RE` | Responsive | 39 |
-| `AC` | Accessibility | 66 |
-| `PE` | Perceived performance | 28 |
-| `DA` | Data display | 45 |
-| `GE` | Generic AI tells | 37 |
-| `CS` | Consistency | 35 |
+Use this index with the pinned diff and its affected consumers. Select a
+category when the change could affect one of its concerns. Several categories
+can apply to one hunk. For example, a changed color token can affect contrast,
+states, and consistency across every component that uses it.
+
+| Prefix | Category | Entries | Inspect when the change can affect |
+| --- | --- | --- | --- |
+| `HI` | Hierarchy | 29 | Prominence, grouping, focal points, or competing actions |
+| `LA` | Layout and spacing | 31 | Placement, spacing, alignment, containment, or overflow |
+| `TY` | Typography | 59 | Type roles, sizes, wrapping, text measure, or glyphs |
+| `CO` | Color and contrast | 41 | Color roles, contrast, themes, or color cues |
+| `SU` | Surfaces and depth | 30 | Borders, fills, elevation, stacking, or overlays |
+| `IC` | Icons and imagery | 34 | Icons, imagery, cropping, or visual alternatives |
+| `MO` | Motion | 38 | Animation, transitions, scrolling effects, or reduced motion |
+| `IN` | Interaction and feedback | 44 | Actions, input handling, feedback, or recovery |
+| `ST` | Component states | 26 | Loading, empty, error, disabled, selected, or other states |
+| `FO` | Forms | 42 | Field labels, input, validation, or submission |
+| `NA` | Navigation and information architecture | 51 | Routes, navigation, discovery, or steps in a flow |
+| `CP` | Content and copy | 60 | Labels, instructions, errors, or other visible copy |
+| `RE` | Responsive | 39 | Viewport behavior, reflow, touch, or content fit |
+| `AC` | Accessibility | 66 | Semantics, names, focus, keyboard use, target size, text resizing, or other access to content and actions |
+| `PE` | Perceived performance | 28 | Loading, responsiveness, layout stability, or feedback timing |
+| `DA` | Data display | 45 | Tables, charts, numeric values, or comparisons |
+| `GE` | Generic AI tells | 37 | Composition, decorative styling, or brand expression |
+| `CS` | Consistency | 35 | Shared primitives, design tokens, or recurring patterns |
 
 735 entries in total.
 
@@ -84,11 +93,11 @@ from these skills. A source key in an entry names the skill that flags it.
 ## Maintaining the catalog
 
 Add an entry at the end of its category with the next id and the five-line
-format above. Merge a duplicate into the older id and add the new sources.
-Keep every entry universal: an aesthetic preference belongs in the
-repository's design authority, not here. Keep thresholds attributed when
-sources disagree. Write straight quotes, no dashes as punctuation, and no
-stack-specific tool names, because the kit's validator reads this file.
+format above. When consolidating duplicate entries, keep both ids and point
+the duplicate to the canonical entry. Add new sources to the canonical entry.
+Link standards when they define a threshold or exception. Keep aesthetic
+cues advisory and distinguish them from requirements. Write straight quotes,
+avoid dashes as punctuation, and omit stack-specific tool names.
 
 
 ## Hierarchy (HI)
@@ -112,10 +121,10 @@ Fix: Show the common path first and reveal advanced options one level deeper whe
 Grade: MAJOR. Sources: impeccable, ui-ux-pro-max.
 
 ### HI-04 Too many options at one decision point
-Symptom: Users face many simultaneous choices with no recommended one, so they hesitate, misclick, or abandon.
-Detect: Count options at one decision point: over 4 is a flag, 5 to 7 strains, 8 or more overloads; undivided lists over 4 items; 10 or more plans or templates ungrouped; identical pricing tiers with no highlighted plan.
-Fix: Group, chunk to 4 or fewer, highlight a recommended default, or disclose the rest progressively.
-Grade: MAJOR. Sources: impeccable, ui-ux-pro-max.
+Symptom: Users struggle to compare choices or find a suitable option at a decision point.
+Detect: Look for choices with indistinguishable labels, missing comparison criteria, or an ungrouped list whose options serve different tasks. Cite the distinction the user cannot make. The number of options alone does not establish a defect.
+Fix: Group choices by user goal, expose the differences that matter, or disclose advanced choices when needed.
+Grade: POLISH. Sources: impeccable, ui-ux-pro-max.
 
 ### HI-05 Emphasis spent on too many elements
 Symptom: Many headings, buttons, badges, or sections are all big, bold, or dramatic, so none stands out.
@@ -818,20 +827,20 @@ Grade: POLISH. Sources: minimalist-ui.
 
 ### CO-01 Text under its WCAG contrast ratio
 Symptom: Body, label, caption, placeholder, heading or status text reads faint against its background.
-Detect: Rendered pair against the nearest painted ancestor under 4.5:1 for normal text (7:1 for AAA) or 3:1 for large text (24px, or 18.67px bold); APCA Lc under 75 body, 60 labels, 45 large; text-gray-400 on white, body lighter than slate-700.
-Fix: Move the text's lightness, not its hue, away from the background until it passes, then remeasure.
+Detect: Measure the rendered text against its actual background under [WCAG 2.2 SC 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum). AA requires 4.5:1 for normal text and 3:1 for large text (18 pt, or 14 pt bold, equivalent to 24 CSS px or approximately 18.67 CSS px bold). Apply the criterion's exceptions. If the review calls for AAA, [SC 1.4.6](https://www.w3.org/TR/WCAG22/#contrast-enhanced) requires 7:1 and 4.5:1 respectively.
+Fix: Adjust the rendered foreground or background and remeasure the failing pair in each affected theme and state.
 Grade: BLOCKING. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-colors.
 
 ### CO-02 UI component, icon or graphic under 3:1
 Symptom: Input borders, checkbox outlines, icons, chart marks or button fills blend into the adjacent background.
-Detect: Border, state indicator, icon, chart mark or accent fill under 3:1 against adjacent colors (inactive controls and logos exempt); #ddd border on white; #F97316, #10B981, #F59E0B accents on light surfaces; small icons under 4.5:1 (ui-ux-pro-max) or APCA Lc 30 (better-colors).
-Fix: Darken or lighten the component color until it reaches 3:1 on every adjacent color.
+Detect: Identify the visual information needed to recognize a control, its state, or a meaningful part of a graphic. Measure it against adjacent colors. A ratio below 3:1 fails [WCAG 2.2 SC 1.4.11](https://www.w3.org/TR/WCAG22/#non-text-contrast) when the criterion applies. Apply its exceptions for inactive controls, unmodified user-agent appearances, and essential graphic presentation.
+Fix: Increase contrast for the visual information that identifies the control, state, or graphic.
 Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, design-review, design-plugin/accessibility-review, better-accessibility, better-colors.
 
 ### CO-03 Dark-mode text or borders failing contrast
-Symptom: Text and borders that passed on white are muddy or invisible on dark surfaces.
-Detect: Same gray token on both themes; text-gray-600 on bg-gray-900; #9CA3AF on #111827; pairs measured in light only, though APCA scores mirrored pairs differently; dark primary text under 4.5:1, secondary under 3:1 (ui-ux-pro-max; WCAG keeps 4.5:1), OLED text under 7:1.
-Fix: Give dark mode its own text and border tokens (such as #F9FAFB) and remeasure every pair there.
+Symptom: Text, controls, or required graphics lose contrast in dark mode.
+Detect: Measure the actual pair in dark mode against `CO-01` for text or `CO-02` for non-text. A shared token can pass in both themes. For example, `#9CA3AF` on `#111827` is 6.99:1 and passes AA for normal text.
+Fix: Adjust the affected dark-mode pair and remeasure the rendered result.
 Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, claude-code-workflows, better-colors.
 
 ### CO-04 Light label on a mid-lightness fill
@@ -3324,10 +3333,10 @@ Detect: Only color or background-color differs between states; red border with n
 Fix: Pair every color cue with an icon, text, underline, border, or shape, and write the error out.
 Grade: BLOCKING. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, better-colors, design-plugin/accessibility-review.
 
-### AC-09 Text contrast below 4.5:1
-Symptom: Body, label, placeholder, or button text is faint against its background in light or dark mode.
-Detect: Measured text contrast under 4.5:1, or under 3:1 for large text (18px+, 14px bold); text-gray-400 on white, ::placeholder under 4.5:1, bg-white with text-white, yellow on white (WCAG 1.4.3; AAA 7:1 per impeccable).
-Fix: Adjust the pair until it measures at least 4.5:1, or 3:1 for large text, in both themes.
+### AC-09 Insufficient text contrast
+Symptom: Text is hard to read against its background.
+Detect: Apply the thresholds and exceptions in `CO-01`. This id is retained for existing references. Cite `CO-01` for new findings.
+Fix: Apply the correction in `CO-01` and verify the affected theme and state.
 Grade: BLOCKING. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, design-review, frontend-design.
 
 ### AC-10 Icon-only control without an accessible name
@@ -4137,11 +4146,11 @@ Detect: `grid-cols-3` or `repeat(3, 1fr)` of cards sharing one icon, title, and 
 Fix: Compose for the content: natural item count, asymmetric or zigzag layout, non-card sections, varied spans.
 Grade: MAJOR. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, redesign-existing-projects, frontend-design, unslop.
 
-### GE-04 Stock default typeface on a brand surface
-Symptom: Type carries no personality because the primary face is the default every generated page uses.
-Detect: `font-family` is Inter, Roboto, Arial, Open Sans, or system-ui where brand matters; impeccable also flags Space Grotesk, DM Sans, Outfit, Plus Jakarta Sans, Syne, IBM Plex Sans, and Instrument Sans, while design-taste-frontend and gpt-taste still suggest Outfit and Geist.
-Fix: Choose a face for this brand; defaults only where neutrality is the point, such as accessibility-first or public-sector surfaces.
-Grade: MAJOR. Sources: impeccable, design-taste-frontend, minimalist-ui, gpt-taste, frontend-design.
+### GE-04 Typography that weakens a brand surface
+Symptom: A brand-led surface loses its intended voice because the display and supporting text receive the same generic treatment.
+Detect: Compare the rendered type roles with the stated design intent or a comparable branded surface. Identify what is lost, such as the emphasis of a lead message. A common font family is compatible with distinctive typography.
+Fix: Tune the display treatment through scale, weight, spacing, or family where it serves the brand intent.
+Grade: POLISH. Sources: impeccable, design-taste-frontend, minimalist-ui, gpt-taste, frontend-design.
 
 ### GE-05 Editorial serif styling on a brief that is not editorial
 Symptom: A display serif, italics, and drop caps chosen because the brief "feels premium", the most-tested generated tell.

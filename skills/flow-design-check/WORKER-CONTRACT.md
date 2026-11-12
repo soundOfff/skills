@@ -39,9 +39,10 @@ worse. It includes:
 
 The drift axis classifies every UI-affecting hunk as `CONFORMS`,
 `INTENTIONAL CHANGE`, `DRIFT`, or `NEEDS DECISION`. A `DRIFT` row is a finding.
-The antipattern axis grades each finding `BLOCKING`, `MAJOR`, or `POLISH`. The
-grade comes from the catalog entry unless the observed consequence demonstrates
-a different one, and then the row says why.
+The antipattern axis grades each confirmed defect `BLOCKING`, `MAJOR`, or
+`POLISH`. To assign `BLOCKING` or `MAJOR`, cite a demonstrated user consequence
+or an applicable requirement that the change fails. A catalog cue alone does
+not qualify. Explain a departure from the default grade in the row.
 
 Attribution comes before verdict. A defect proven present at the base is
 pre-existing and is not a finding. The antipattern worker lists at most five
@@ -132,7 +133,16 @@ PASS | FAIL | BLOCKED
 Use `none` as the only row of an empty table. On the drift axis, `FAIL`
 requires at least one `DRIFT` row, `NEEDS DECISION` requires no `DRIFT` row and
 at least one decision, and `PASS` requires only `CONFORMS` or
-`INTENTIONAL CHANGE` rows. On the antipattern axis, `FAIL` requires at least
-one `BLOCKING` or `MAJOR` finding, and `POLISH` rows never change the verdict.
-`BLOCKED` names the unavailable input or proof. Do not include praise, summary
-prose, repair patches, or findings owned by the other axis.
+`INTENTIONAL CHANGE` rows. On the antipattern axis, use these verdicts in
+order:
+
+- `BLOCKED` when the target is stale, a required input such as the catalog or
+  diff is unreadable, or no applicable check can be performed. Name the gap.
+- `FAIL` when at least one `BLOCKING` or `MAJOR` finding is attributed to the
+  change. Keep any unverified checks visible in **Coverage**.
+- `PASS` for the scope assessed when no such finding is established. `POLISH`
+  rows do not affect the verdict. An `unverified` row marks partial coverage
+  and does not itself change the verdict.
+
+Do not include praise, summary prose, repair patches, or findings owned by the
+other axis.
