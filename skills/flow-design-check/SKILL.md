@@ -8,8 +8,8 @@ description: Produce an optional two-axis design review for a pinned UI change, 
 Run `/flow-design-check [--base <ref>] [--focus <text>] [--url <address>]` as a
 read-only advisory review. One coordinator dispatches exactly two fresh workers.
 The drift worker judges whether the UI code still matches the repository's
-design authority. The antipattern worker judges whether the rendered UI shows
-visual antipatterns that no design authority would want. The workers receive
+design authority. The antipattern worker checks the observable consequences
+of the change against the applicable catalog categories. The workers receive
 the same packet but cannot read each other's report or delegate further.
 Behavioral correctness belongs to `flow-code-review`. General structure and
 maintainability belong to `flow-code-quality-review`.
@@ -79,7 +79,7 @@ When no source works, because the `dev` gate reads `n/a`, the server fails, or
 the harness has no browser tools and the `e2e` gate reads `n/a`, record
 `render: unavailable` with the reason and continue code-only. Say so in the
 final report. An unavailable render narrows the antipattern axis. It does not
-block the check.
+by itself block the check.
 
 Build the packet exactly from the **Input** section of
 [`WORKER-CONTRACT.md`](WORKER-CONTRACT.md).
@@ -93,8 +93,10 @@ reason.
 In one parallel dispatch, start exactly two fresh read-only workers:
 
 1. **Drift.** Require [`DRIFT-WORKER.md`](DRIFT-WORKER.md).
-2. **Antipatterns.** Require [`ANTIPATTERN-WORKER.md`](ANTIPATTERN-WORKER.md)
-   and [`ANTIPATTERNS.md`](ANTIPATTERNS.md).
+2. **Antipatterns.** Require [`ANTIPATTERN-WORKER.md`](ANTIPATTERN-WORKER.md).
+   Pass the path to [`ANTIPATTERNS.md`](ANTIPATTERNS.md). The worker reads the
+   diff first, then uses the index and category headings to open individual
+   entries that apply to the change.
 
 Give both the complete packet and [`WORKER-CONTRACT.md`](WORKER-CONTRACT.md).
 State that each worker is a leaf. It performs its own repository legwork and
@@ -130,9 +132,11 @@ the pinned target, or its unavailable or stale evidence is recorded.
 Wait for both workers. Check every report against `WORKER-CONTRACT.md`. Verify
 that each changed `path:line` exists in the diff, each authority `path:line`
 says what the row claims, each cited capture exists in the index, each catalog
-id exists in [`ANTIPATTERNS.md`](ANTIPATTERNS.md), and each finding's
-attribution to the target holds. Remove unsupported findings and record the
-reason. Preserve supported findings under their original axis.
+id exists in [`ANTIPATTERNS.md`](ANTIPATTERNS.md) by looking up its heading, and
+each finding's attribution to the target holds. Check that applicable coverage
+gaps remain visible and that the grades match the evidence. Remove unsupported
+findings and record the reason. Preserve supported findings under their
+original axis.
 
 When both axes flag the same hunk, keep both rows and mark the overlap. A drift
 row and an antipattern row describe different defects. When the drift report
@@ -141,6 +145,9 @@ authority wins: move the antipattern row to its **Suppressed** table with the
 authority `path:line`. When the antipattern report flags a pattern the
 authority is silent on, the row stands, and the drift axis may still carry a
 decision about whether the authority should settle it.
+
+Recompute the antipattern verdict from the retained findings and coverage
+using the worker contract.
 
 Recompute `HEAD`, working-tree status, and the diff hash. Any change makes both
 reports, the captures, and the mechanical result stale. Restart the check
@@ -157,6 +164,7 @@ Return:
 ## Flow design check · PASS | FAIL | NEEDS DECISION | BLOCKED
 Target: <base-sha>..<head-sha> · <diff-hash>
 Render: <n> captures in <path> · <checkout sha> · port <n> | unavailable: <reason>
+Antipattern coverage: complete | partial | unavailable
 
 ### Mechanical
 <command, exit status, violations, or not-configured>
@@ -169,15 +177,18 @@ Render: <n> captures in <path> · <checkout sha> · port <n> | unavailable: <rea
 ```
 
 Verdict precedence is fixed. `BLOCKED` outranks every other verdict when a
-worker is missing, a report is invalid, a configured gate cannot run, or the
-target is stale. `FAIL` outranks `NEEDS DECISION` when any target-attributed
-mechanical violation, any `DRIFT` row, or any `BLOCKING` or `MAJOR` antipattern
-exists. `NEEDS DECISION` requires no `FAIL` cause and at least one unresolved
-authority question. `PASS` requires a passing or `not-configured` mechanical
-gate, only `CONFORMS` or `INTENTIONAL CHANGE` drift rows, and no antipattern
-above `POLISH`. An unavailable render never lowers a verdict on its own. The
-report states which categories went unverified. A failing result returns to
-the developer for repair. This skill never repairs the change.
+worker is missing or blocked, a report is invalid, a configured gate cannot
+run, or the target is stale. `FAIL` outranks `NEEDS DECISION` when any
+target-attributed mechanical violation, `DRIFT` row, or `BLOCKING` or `MAJOR`
+antipattern exists. `NEEDS DECISION` requires no `FAIL` cause and at least one
+unresolved authority question. `PASS` requires a passing or `not-configured`
+mechanical gate, only `CONFORMS` or `INTENTIONAL CHANGE` drift rows, and an
+antipattern `PASS` for the scope assessed.
+
+Mark antipattern coverage `partial` when any applicable check is `unverified`.
+Include the reasons in the antipattern report even if the verdict is `PASS` or
+`FAIL`. Mark coverage `unavailable` when there is no usable antipattern report.
+A failing result returns to the developer for repair.
 
 Completion: one current verdict accounts for the mechanical result, both axes,
 every UI-affecting hunk, and target freshness, with no repository, tracker, or
