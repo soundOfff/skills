@@ -68,6 +68,20 @@ several share one root cause, such as one token or one shared primitive,
 report the cause once at the location that owns it. One strong finding
 outranks several weak ones.
 
+## Proposals
+
+Every drift decision carries a recommended answer and a proposed rule.
+
+- **Recommended answer.** The choice that precedent supports, with the
+  `path:line` of the nearest comparable UI that shows it. Without precedent,
+  write `no recommendation: no precedent`. Never recommend from preference.
+- **Proposed rule.** Draft text that would settle the question, with the
+  authority file and section where it belongs. Write `none` when there is no
+  recommendation or no authority file to amend.
+
+Both are advice. Neither changes a classification or a verdict. A proposed
+rule is draft text for the authority, never a change to code.
+
 ## Output
 
 The drift worker returns exactly:
@@ -87,8 +101,8 @@ PASS | FAIL | NEEDS DECISION | BLOCKED
 | ... |
 
 ## Decisions
-| Question | Missing or conflicting evidence | Owner |
-| --- | --- | --- |
+| Question | Missing or conflicting evidence | Recommended answer | Proposed rule | Owner |
+| --- | --- | --- | --- | --- |
 | ... |
 
 ## Verification

@@ -138,6 +138,13 @@ gaps remain visible and that the grades match the evidence. Remove unsupported
 findings and record the reason. Preserve supported findings under their
 original axis.
 
+Verify that the precedent `path:line` behind each recommended answer exists
+and shows the choice it recommends, and that each proposed rule names an
+authority file from the packet. The no-authority decision's `/flow-setup` step
+needs no precedent. Replace any other unsupported recommendation with
+`no recommendation: unsupported` and its proposed rule with `none`, record the
+reason, and keep the decision row.
+
 When both axes flag the same hunk, keep both rows and mark the overlap. A drift
 row and an antipattern row describe different defects. When the drift report
 shows that the authority requires a pattern the antipattern report flags, the
@@ -183,7 +190,8 @@ target-attributed mechanical violation, `DRIFT` row, or `BLOCKING` or `MAJOR`
 antipattern exists. `NEEDS DECISION` requires no `FAIL` cause and at least one
 unresolved authority question. `PASS` requires a passing or `not-configured`
 mechanical gate, only `CONFORMS` or `INTENTIONAL CHANGE` drift rows, and an
-antipattern `PASS` for the scope assessed.
+antipattern `PASS` for the scope assessed. A recommended answer or proposed
+rule never changes the verdict.
 
 Mark antipattern coverage `partial` when any applicable check is `unverified`.
 Include the reasons in the antipattern report even if the verdict is `PASS` or
