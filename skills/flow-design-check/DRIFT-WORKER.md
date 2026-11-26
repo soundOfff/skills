@@ -19,8 +19,9 @@ silent.
 
 When the `Design system` row reads `none`, record one decision in
 **Decisions**: the repository has no design authority, and the developer can
-create one with the design step of `/flow-setup`. Classify hunks by precedent
-until it exists.
+create one with the design step of `/flow-setup`. Recommend that step as its
+answer. Classify hunks by precedent until it exists, and leave every
+`Proposed rule` as `none`, because no authority file exists to amend.
 
 When the authority is a `DESIGN.md` in the Google Stitch format (YAML token
 frontmatter, then `## Overview`, `## Colors`, `## Typography`, `## Elevation`,
@@ -95,6 +96,12 @@ Each `DRIFT` finding cites the smallest useful changed `path:line`, the authorit
 `NEEDS DECISION` item cites the conflicting or missing evidence and asks one
 bounded question. Preferences without repository authority are decisions, not
 findings.
+
+Give each decision the recommended answer and proposed rule that the worker
+contract defines. Recommend only the choice that precedent you inspected
+supports, and cite its `path:line`. Draft the rule as text the developer could
+add to the authority, and name the file and section where it belongs. For a
+Stitch-format `DESIGN.md`, take the section from the table in step 1.
 
 Completion: every UI-affecting hunk is classified, all seven drift axes are
 accounted for, and every finding or decision satisfies its evidence contract.
