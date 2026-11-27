@@ -145,13 +145,32 @@ needs no precedent. Replace any other unsupported recommendation with
 `no recommendation: unsupported` and its proposed rule with `none`, record the
 reason, and keep the decision row.
 
+Look up every suppressed id in the catalog and every authority line a
+suppression cites. Two suppressions are invalid. One is an entry that carries
+`Requirement:`. The other is an exemption by a rule the target adds or edits,
+unless the drift report classifies that authority change `INTENTIONAL CHANGE`.
+Restore each invalid row to **Findings** at the entry's default grade, and
+mark it `attribution: unproven` when the report does not show the changed
+`path:line`. A restored `Requirement:` row takes `authority-change` and the
+row's authority `path:line` as its required correction. Any other restored row
+takes the entry's `Fix:`.
+
+Verify that each token or component a correction names exists, in the
+authority or at the cited code `path:line`. Replace an unverifiable correction
+with the entry's `Fix:` and keep the finding.
+
 When both axes flag the same hunk, keep both rows and mark the overlap. A drift
 row and an antipattern row describe different defects. When the drift report
 shows that the authority requires a pattern the antipattern report flags, the
 authority wins: move the antipattern row to its **Suppressed** table with the
-authority `path:line`. When the antipattern report flags a pattern the
-authority is silent on, the row stands, and the drift axis may still carry a
-decision about whether the authority should settle it.
+authority `path:line`. A rule the target adds or edits counts as authority
+here only when the drift report classifies that change `INTENTIONAL CHANGE`.
+An entry that carries `Requirement:` is the exception. Its row stays a
+finding, and its required correction becomes `authority-change` with that
+authority `path:line`. When the antipattern
+report flags a pattern the authority is silent on, the row stands, and the
+drift axis may still carry a decision about whether the authority should
+settle it.
 
 Recompute the antipattern verdict from the retained findings and coverage
 using the worker contract.
