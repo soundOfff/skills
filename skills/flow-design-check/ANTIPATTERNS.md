@@ -12,8 +12,13 @@ worker checks whether the change matches the repository's design system.
 Symptom: what a user or reviewer sees
 Detect: cues to investigate and conditions that confirm the defect
 Fix: the correction
-Grade: BLOCKING | MAJOR | POLISH. Sources: the skills that flag it.
+Grade: BLOCKING | MAJOR | POLISH. Requirement: the standard it restates. Sources: the skills that flag it.
 ```
+
+Only some entries carry `Requirement:`. Such an entry restates an external
+standard, such as a WCAG success criterion, and no design authority can exempt
+it. Every other entry yields to a written rule in the repository's design
+authority.
 
 Ids are stable. Cite them in findings as `TY-01`. Never renumber an entry. A
 new entry takes the next number in its category. `BLOCKING` means unusable,
@@ -95,9 +100,10 @@ from these skills. A source key in an entry names the skill that flags it.
 Add an entry at the end of its category with the next id and the five-line
 format above. When consolidating duplicate entries, keep both ids and point
 the duplicate to the canonical entry. Add new sources to the canonical entry.
-Link standards when they define a threshold or exception. Keep aesthetic
-cues advisory and distinguish them from requirements. Write straight quotes,
-avoid dashes as punctuation, and omit stack-specific tool names.
+Link standards when they define a threshold or exception. Add `Requirement:`
+to the `Grade:` line when the entry restates a standard's requirement. Keep
+aesthetic cues advisory and distinguish them from requirements. Write straight
+quotes, avoid dashes as punctuation, and omit stack-specific tool names.
 
 
 ## Hierarchy (HI)
@@ -289,7 +295,7 @@ Grade: BLOCKING. Sources: ui-ux-pro-max, impeccable, better-layout.
 Symptom: Tabbing or jumping to an anchor scrolls the focused control or heading fully behind a sticky header or footer.
 Detect: `position: sticky` or `fixed` header, footer or cookie banner with no `scroll-padding-top` or `scroll-padding-bottom` on the scroller; `id` anchor targets without `scroll-margin-top`; Tab through the page and watch focus vanish (WCAG 2.4.11).
 Fix: Pad the scroller by each sticky bar's height with `scroll-padding-top` or `scroll-padding-bottom`, and give anchor targets `scroll-margin-top`.
-Grade: BLOCKING. Sources: better-accessibility, ui-ux-pro-max, better-layout.
+Grade: BLOCKING. Requirement: WCAG 2.4.11. Sources: better-accessibility, ui-ux-pro-max, better-layout.
 
 ### LA-03 Primary action pushed out of reach
 Symptom: The primary button sits below the viewport, under the on-screen keyboard or in a pane that clips it.
@@ -829,13 +835,13 @@ Grade: POLISH. Sources: minimalist-ui.
 Symptom: Body, label, caption, placeholder, heading or status text reads faint against its background.
 Detect: Measure the rendered text against its actual background under [WCAG 2.2 SC 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum). AA requires 4.5:1 for normal text and 3:1 for large text (18 pt, or 14 pt bold, equivalent to 24 CSS px or approximately 18.67 CSS px bold). Apply the criterion's exceptions. If the review calls for AAA, [SC 1.4.6](https://www.w3.org/TR/WCAG22/#contrast-enhanced) requires 7:1 and 4.5:1 respectively.
 Fix: Adjust the rendered foreground or background and remeasure the failing pair in each affected theme and state.
-Grade: BLOCKING. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-colors.
+Grade: BLOCKING. Requirement: WCAG 1.4.3. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-colors.
 
 ### CO-02 UI component, icon or graphic under 3:1
 Symptom: Input borders, checkbox outlines, icons, chart marks or button fills blend into the adjacent background.
 Detect: Identify the visual information needed to recognize a control, its state, or a meaningful part of a graphic. Measure it against adjacent colors. A ratio below 3:1 fails [WCAG 2.2 SC 1.4.11](https://www.w3.org/TR/WCAG22/#non-text-contrast) when the criterion applies. Apply its exceptions for inactive controls, unmodified user-agent appearances, and essential graphic presentation.
 Fix: Increase contrast for the visual information that identifies the control, state, or graphic.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, design-review, design-plugin/accessibility-review, better-accessibility, better-colors.
+Grade: BLOCKING. Requirement: WCAG 1.4.11. Sources: impeccable, ui-ux-pro-max, design-review, design-plugin/accessibility-review, better-accessibility, better-colors.
 
 ### CO-03 Dark-mode text or borders failing contrast
 Symptom: Text, controls, or required graphics lose contrast in dark mode.
@@ -859,7 +865,7 @@ Grade: BLOCKING. Sources: ui-ux-pro-max, better-colors, impeccable, design-taste
 Symptom: Red or green text, dots or borders carry a state with no icon, text or underline.
 Detect: Status variants differing only in color or background-color; an invalid field showing border-red-500 with no icon or error text; links told from body text by color only (WCAG 1.4.1).
 Fix: Add a redundant cue beside the color: an icon, inline text or an underline.
-Grade: BLOCKING. Sources: better-accessibility, ui-ux-pro-max.
+Grade: BLOCKING. Requirement: WCAG 1.4.1. Sources: better-accessibility, ui-ux-pro-max.
 
 ### CO-07 Focus ring without 3:1 on every side
 Symptom: The focus indicator is faint or vanishes where it crosses a fill, image or hover state.
@@ -1486,7 +1492,7 @@ Grade: BLOCKING. Sources: ui-ux-pro-max, design-review, impeccable, apple-design
 Symptom: Audio starts on page load, startling users and drowning out screen-reader speech.
 Detect: `<video autoplay>` or `<audio autoplay>` without `muted` (and `playsinline`); browsers may block it, leaving a frozen hero (WCAG 1.4.2).
 Fix: Never autoplay with sound; autoplay only muted.
-Grade: BLOCKING. Sources: better-accessibility, ui-ux-pro-max.
+Grade: BLOCKING. Requirement: WCAG 1.4.2. Sources: better-accessibility, ui-ux-pro-max.
 
 ### MO-05 Content left invisible by a reveal that never fires
 Symptom: Sections stay hidden or stuck mid-animation because the reveal depends on an animation that never runs.
@@ -2500,7 +2506,7 @@ Grade: MAJOR. Sources: ui-ux-pro-max.
 Symptom: Client-side navigation swaps the view silently; the tab title stays the same and focus stays on the old link.
 Detect: Router with no `document.title` update or focus move on route change; a static `<title>` across routes; title ordered site first and page last (WCAG 2.4.2).
 Fix: Set a page-specific title, most specific first, and move focus to the new `<h1>` or `<main>` on route change.
-Grade: MAJOR. Sources: better-accessibility, ui-ux-pro-max.
+Grade: MAJOR. Requirement: WCAG 2.4.2. Sources: better-accessibility, ui-ux-pro-max.
 
 ### NA-22 Conversational, voice, or zero interface hiding needed controls
 Symptom: Forms, data grids, or explicit controls are replaced by chat, voice, or predicted actions users cannot see.
@@ -3289,25 +3295,25 @@ Grade: POLISH. Sources: impeccable.
 Symptom: Tabbing through the page shows nothing moving; the focused control looks identical to the others.
 Detect: outline: none, outline: 0, outline-none or focus:outline-none with no :focus-visible rule; :hover rules with no matching :focus-visible; a keyboard walkthrough capture where the focused element cannot be identified (WCAG 2.4.7).
 Fix: Keep the browser ring or draw a visible 2px to 4px :focus-visible ring on every interactive element.
-Grade: BLOCKING. Sources: impeccable, design-taste-frontend, better-interface, ui-ux-pro-max, design-review, redesign-existing-projects, frontend-design, claude-code-workflows, design-plugin/accessibility-review, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 2.4.7. Sources: impeccable, design-taste-frontend, better-interface, ui-ux-pro-max, design-review, redesign-existing-projects, frontend-design, claude-code-workflows, design-plugin/accessibility-review, better-accessibility.
 
 ### AC-02 Meaningful image without a text alternative
 Symptom: Informative images, charts, icons, and star ratings are announced as "image", a filename, or nothing.
 Detect: img with no alt, or alt="" on a content image; alt="image", "photo", "chart", or a filename; svg with no title or aria-label; star-rating icons with no text value; native Image with no accessibilityLabel (WCAG 1.1.1).
 Fix: Describe the information the image carries, such as "Revenue rose 40% in Q4", and use alt="" only for decoration.
-Grade: BLOCKING. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, design-review, redesign-existing-projects, claude-code-workflows, design-plugin/accessibility-review, design-plugin/design-critique, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 1.1.1. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, design-review, redesign-existing-projects, claude-code-workflows, design-plugin/accessibility-review, design-plugin/design-critique, better-accessibility.
 
 ### AC-03 Function or content reachable only by pointer
 Symptom: Hover menus, tooltips, truncated values, chart marks, or drag-only steps cannot be reached with a keyboard or on touch.
 Detect: Content revealed only by :hover, mousemove, or a title attribute with no focus equivalent; onMouseEnter with no onKeyDown; chart marks with no tabindex; a keyboard-only walk of the flow stalls at a step (WCAG 2.1.1).
 Fix: Use native controls or add a keyboard path that opens, focuses, and activates the same content.
-Grade: BLOCKING. Sources: impeccable, design-review, better-interface, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-layout, ui-ux-pro-max.
+Grade: BLOCKING. Requirement: WCAG 2.1.1. Sources: impeccable, design-review, better-interface, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-layout, ui-ux-pro-max.
 
 ### AC-04 Tab order diverging from visual order
 Symptom: Tab and screen reader focus jump around the page in an order unrelated to the layout.
 Detect: Any tabindex above 0; order, flex-direction: row-reverse, column-reverse, explicit grid placement, or absolute positioning that moves content out of source sequence; a Tab walk whose order differs from reading order (WCAG 2.4.3, 1.3.2).
 Fix: Reorder the source so DOM order equals visual order and use only tabindex 0 and -1.
-Grade: BLOCKING. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-layout.
+Grade: BLOCKING. Requirement: WCAG 2.4.3. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility, better-layout.
 
 ### AC-05 Clickable div or span standing in for a button or link
 Symptom: A control cannot be reached with Tab, ignores Enter and Space, and is announced as plain text.
@@ -3319,19 +3325,19 @@ Grade: BLOCKING. Sources: impeccable, better-interface, ui-ux-pro-max, design-re
 Symptom: Icon buttons, checkboxes, inline links, and chart marks are hard to hit and mis-taps land on neighbors.
 Detect: Computed box under 24x24 CSS px with no WCAG 2.5.8 exception (better-accessibility); under 44x44px or 48x48dp Android (impeccable, ui-ux-pro-max, design-review, design-plugin/accessibility-review); under 40x40px desktop (make-interfaces-feel-better); h-6 w-6 buttons with no padding or hitSlop.
 Fix: Enlarge the box, or extend the hit area with padding, hitSlop, or a pseudo-element to the platform minimum.
-Grade: BLOCKING. Sources: impeccable, make-interfaces-feel-better, ui-ux-pro-max, design-review, design-plugin/accessibility-review, design-plugin/design-critique, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 2.5.8. Sources: impeccable, make-interfaces-feel-better, ui-ux-pro-max, design-review, design-plugin/accessibility-review, design-plugin/design-critique, better-accessibility.
 
 ### AC-07 Reduced-motion preference ignored
 Symptom: Users who asked the OS for less motion still get entry animations, parallax, marquees, scroll hijack, and confetti.
 Detect: Stylesheet defines animation or transition with no @media (prefers-reduced-motion: reduce) block; JS or native animation with no matchMedia, useReducedMotion, or reduceMotionEnabled check; ScrollTrigger, parallax, magnetic, or autoplay paths with no reduced branch (WCAG 2.3.3).
 Fix: Under the query, replace spatial motion with short crossfades or set durations to 0.01ms and iteration count to 1.
-Grade: BLOCKING. Sources: impeccable, design-taste-frontend, better-interface, apple-design, ui-ux-pro-max, design-review, frontend-design.
+Grade: BLOCKING. Requirement: WCAG 2.3.3. Sources: impeccable, design-taste-frontend, better-interface, apple-design, ui-ux-pro-max, design-review, frontend-design.
 
 ### AC-08 Meaning carried by color alone
 Symptom: Error, selected, required, or status states vanish in grayscale or for color-blind users.
 Detect: Only color or background-color differs between states; red border with no error text or icon; green and red dots with no label; links told apart from text by hue only; red text on green (WCAG 1.4.1).
 Fix: Pair every color cue with an icon, text, underline, border, or shape, and write the error out.
-Grade: BLOCKING. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, better-colors, design-plugin/accessibility-review.
+Grade: BLOCKING. Requirement: WCAG 1.4.1. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, better-colors, design-plugin/accessibility-review.
 
 ### AC-09 Insufficient text contrast
 Symptom: Text is hard to read against its background.
@@ -3343,55 +3349,55 @@ Grade: BLOCKING. Sources: impeccable, design-taste-frontend, ui-ux-pro-max, desi
 Symptom: A screen reader announces "button" or "link" with no name for close, menu, search, or delete controls.
 Detect: button or a containing only an svg or icon with no aria-label, aria-labelledby, title, or visually hidden text; native Pressable with no accessibilityLabel; empty computed name in the accessibility tree (WCAG 4.1.2).
 Fix: Name the action with aria-label or hidden text and give the icon aria-hidden="true".
-Grade: BLOCKING. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 4.1.2. Sources: impeccable, better-interface, ui-ux-pro-max, design-review, better-accessibility.
 
 ### AC-11 Layout breaks at 200% zoom or the largest text size
 Symptom: Zoomed or enlarged text clips, overlaps, truncates, or forces horizontal scrolling.
 Detect: Capture at 200% browser zoom or maximum Dynamic Type; fixed px heights or widths on text containers, overflow: hidden on text, px spacing around text, numberOfLines={1} on essential labels (WCAG 1.4.4, 1.4.10).
 Fix: Size containers and spacing in rem or em and let them grow and wrap with the text.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, design-review, design-plugin/accessibility-review, apple-design, better-accessibility, better-interface, better-layout, better-typography.
+Grade: BLOCKING. Requirement: WCAG 1.4.4. Sources: impeccable, ui-ux-pro-max, design-review, design-plugin/accessibility-review, apple-design, better-accessibility, better-interface, better-layout, better-typography.
 
 ### AC-12 Custom widget missing role, name, or state
 Symptom: Custom toggles, tabs, accordions, and menus announce as plain text or "clickable" without selected, expanded, or checked state.
 Detect: div-based widgets with no role or accessible name; no aria-expanded, aria-selected, aria-pressed, aria-checked, or aria-disabled on stateful controls; an accordion header that is not a button with aria-expanded; native components with no accessibilityRole or accessibilityState (WCAG 4.1.2).
 Fix: Use the native element, or add the role, an accessible name, and the state attributes the role requires.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, design-plugin/accessibility-review, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 4.1.2. Sources: impeccable, ui-ux-pro-max, design-plugin/accessibility-review, better-accessibility.
 
 ### AC-13 Modal that lets focus escape or cannot be closed with Escape
 Symptom: Tab moves behind the open dialog, screen readers read the page beneath, or Escape does nothing.
 Detect: Custom modal div with no inert on the background and no dialog with showModal(); Tab from the last control lands on page content; no wrap-around on Tab and Shift+Tab; no Escape keydown handler (WCAG 2.1.2).
 Fix: Use dialog with showModal(), or set inert on the background, cycle Tab inside, and close on Escape.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, design-plugin/accessibility-review, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 2.1.2. Sources: impeccable, ui-ux-pro-max, design-plugin/accessibility-review, better-accessibility.
 
 ### AC-14 Control boundary or icon under 3:1 contrast
 Symptom: Input borders, icons, ghost buttons, and checkboxes fade into the surface and are hard to find.
 Detect: Borders, icons, or control outlines under 3:1 against adjacent colors; input with border: none and only a low-alpha box-shadow ring; bg-transparent button with no border, ring, or fill; 1px hairlines and glow as the only edge (WCAG 1.4.11).
 Fix: Give controls a border or fill that measures at least 3:1 against the surrounding surface.
-Grade: BLOCKING. Sources: impeccable, better-ui, make-interfaces-feel-better, design-taste-frontend.
+Grade: BLOCKING. Requirement: WCAG 1.4.11. Sources: impeccable, better-ui, make-interfaces-feel-better, design-taste-frontend.
 
 ### AC-15 Zoom disabled in the viewport meta
 Symptom: Pinch zoom does nothing on mobile, or the page renders at desktop width on phones.
 Detect: meta name="viewport" containing user-scalable=no or maximum-scale=1, or the meta missing entirely (WCAG 1.4.4).
 Fix: Use width=device-width, initial-scale=1 and fix iOS input zoom with a 16px input font size instead.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 1.4.4. Sources: impeccable, ui-ux-pro-max, better-accessibility.
 
 ### AC-16 Drag or gesture with no single-pointer alternative
 Symptom: Reordering, deleting, zooming, or dismissing works only by drag, swipe, pinch, or long press.
 Detect: onDragStart, drag libraries, sortable lists, or kanban columns with no move buttons or menu; swipe-to-delete, pull, or pinch handlers with no visible button equivalent (WCAG 2.5.1, 2.5.7).
 Fix: Add visible buttons or a menu that performs the same move or action with a single pointer.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 2.5.1. Sources: impeccable, ui-ux-pro-max, better-accessibility.
 
 ### AC-17 Focus ring present but too faint
 Symptom: A focus ring exists but is barely visible against the control or page surface.
 Detect: Ring color under 3:1 against adjacent colors; ring hidden by overflow; focus-within outline color never measured against the wrapper background; invisible rings on light forms (WCAG 1.4.11).
 Fix: Use a ring color that measures at least 3:1 against every surface it appears on.
-Grade: BLOCKING. Sources: impeccable, design-taste-frontend, better-typography.
+Grade: BLOCKING. Requirement: WCAG 1.4.11. Sources: impeccable, design-taste-frontend, better-typography.
 
 ### AC-18 Keyboard trap in a widget or embed
 Symptom: Focus enters a widget, editor, or iframe and cannot leave with Tab or Escape.
 Detect: Custom widgets that preventDefault on Tab; iframes or embeds with no exit path; a Tab walk that cycles inside one component forever (WCAG 2.1.2).
 Fix: Let Tab or Escape leave every focusable region and return focus to where it entered.
-Grade: BLOCKING. Sources: impeccable, ui-ux-pro-max, design-plugin/accessibility-review.
+Grade: BLOCKING. Requirement: WCAG 2.1.2. Sources: impeccable, ui-ux-pro-max, design-plugin/accessibility-review.
 
 ### AC-19 Dialog opens without moving focus inside
 Symptom: After a dialog opens, focus stays on the trigger behind it and the next Tab lands outside.
@@ -3403,19 +3409,19 @@ Grade: BLOCKING. Sources: impeccable, better-accessibility.
 Symptom: A control announces as a button, tab, or slider but Enter, Space, or arrow keys do nothing.
 Detect: role="button", "tab", "menuitem", or "slider" on an element with no tabindex="0", no onKeyDown, or both Enter and Space missing; the role's aria-selected, aria-checked, or aria-valuenow absent (WCAG 2.1.1).
 Fix: Use the native element, or implement the full ARIA APG key map and states the role promises.
-Grade: BLOCKING. Sources: claude-code-workflows, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 2.1.1. Sources: claude-code-workflows, better-accessibility.
 
 ### AC-21 Video without captions or audio without a transcript
 Symptom: Deaf and hard-of-hearing users, and muted autoplay viewers, get none of the spoken content.
 Detect: video with no track kind="captions" and no burned-in captions; audio or podcast embed with no transcript link or text nearby (WCAG 1.2.1, 1.2.2).
 Fix: Add a captions track to every video and a transcript to every audio-only piece.
-Grade: BLOCKING. Sources: ui-ux-pro-max, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 1.2.1. Sources: ui-ux-pro-max, better-accessibility.
 
 ### AC-22 Moving or auto-updating content with no pause control
 Symptom: A live chart, marquee, or autoplaying video keeps moving and the user cannot stop it.
 Detect: Streaming chart, marquee, or autoplay media with no pause, stop, or hide control; motion not frozen under prefers-reduced-motion; current value not shown as static text (WCAG 2.2.2).
 Fix: Add a pause control, freeze the motion under reduced motion, and show the current value as text.
-Grade: BLOCKING. Sources: ui-ux-pro-max, better-interface, better-accessibility, design-plugin/accessibility-review.
+Grade: BLOCKING. Requirement: WCAG 2.2.2. Sources: ui-ux-pro-max, better-interface, better-accessibility, design-plugin/accessibility-review.
 
 ### AC-23 Digits reversed by hand for RTL
 Symptom: Numbers inside right-to-left text render backwards, so phone numbers and amounts read wrong.
@@ -3427,7 +3433,7 @@ Grade: BLOCKING. Sources: better-layout, better-typography.
 Symptom: Screen reader users get "image" or nothing from a chart, map, or graph carrying the key insight.
 Detect: canvas or svg chart with no aria-label, caption, summary, or data table; values visible only on hover; gauge, funnel, or waffle with no numeric text; network graph, word cloud, 3D plot, or sunburst with no list view (WCAG 1.1.1).
 Fix: Provide a data table or list view, a text summary of the takeaway, and key values as visible text.
-Grade: BLOCKING. Sources: ui-ux-pro-max, better-accessibility.
+Grade: BLOCKING. Requirement: WCAG 1.1.1. Sources: ui-ux-pro-max, better-accessibility.
 
 ### AC-25 Overlay without dialog semantics or an accessible name
 Symptom: Screen readers do not announce that a dialog opened or what it is called.
@@ -3451,37 +3457,37 @@ Grade: BLOCKING. Sources: better-accessibility.
 Symptom: Merely focusing a control submits a form, opens a window, or navigates.
 Detect: onfocus handlers that navigate or submit; select elements that change the page on focus or on change without a button (WCAG 3.2.1).
 Fix: Change context only on explicit activation such as Enter, click, or a submit button.
-Grade: BLOCKING. Sources: design-plugin/accessibility-review.
+Grade: BLOCKING. Requirement: WCAG 3.2.1. Sources: design-plugin/accessibility-review.
 
 ### AC-29 Audio that ignores system sound settings or has no mute
 Symptom: Sound plays despite the device being on silent and there is no way to turn it off.
 Detect: Audio playback with no in-app mute toggle and no respect for the system silent or volume setting (WCAG 1.4.2).
 Fix: Honor the system sound setting and provide a visible mute control.
-Grade: BLOCKING. Sources: impeccable.
+Grade: BLOCKING. Requirement: WCAG 1.4.2. Sources: impeccable.
 
 ### AC-30 Missing landmarks and structure built from divs
 Symptom: Assistive technology cannot jump between header, navigation, main, and footer; the page reads as one stream.
 Detect: No main, nav, header, footer, aside, or equivalent role attributes; lists, tables, and articles built from div; required fields marked only by styling (WCAG 1.3.1).
 Fix: Wrap regions in landmark elements and use list, table, and article elements for their structure.
-Grade: MAJOR. Sources: impeccable, ui-ux-pro-max, design-review, redesign-existing-projects, claude-code-workflows, design-plugin/accessibility-review, better-accessibility.
+Grade: MAJOR. Requirement: WCAG 1.3.1. Sources: impeccable, ui-ux-pro-max, design-review, redesign-existing-projects, claude-code-workflows, design-plugin/accessibility-review, better-accessibility.
 
 ### AC-31 Heading levels skipped or chosen for size
 Symptom: Screen reader users cannot build an outline; the document jumps from h1 to h3 or h4.
 Detect: h1 followed by h3 or h4; more than one h1; headings picked for their look; styled div or span where a heading belongs (WCAG 1.3.1).
 Fix: Use one h1, nest levels in order, and style headings with classes independent of level.
-Grade: MAJOR. Sources: impeccable, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility.
+Grade: MAJOR. Requirement: WCAG 1.3.1. Sources: impeccable, ui-ux-pro-max, design-review, claude-code-workflows, design-plugin/accessibility-review, better-accessibility.
 
 ### AC-32 Dynamic status change not announced
 Symptom: Toasts, "Saved", result counts, loading states, and live updates are silent for screen reader users.
 Detect: Status text updated with no aria-live region, role="status", accessibilityLiveRegion, or announceForAccessibility; success shown only visually; a toast container that calls focus() instead (WCAG 4.1.3).
 Fix: Announce through a polite live region without moving focus.
-Grade: MAJOR. Sources: impeccable, ui-ux-pro-max, better-accessibility.
+Grade: MAJOR. Requirement: WCAG 4.1.3. Sources: impeccable, ui-ux-pro-max, better-accessibility.
 
 ### AC-33 Missing skip link
 Symptom: Keyboard users must Tab through the whole header and navigation on every page to reach content.
 Detect: No a href="#main" as the first focusable element, or one that is hidden and never shown on focus; no main element with a matching id (WCAG 2.4.1).
 Fix: Add a "Skip to main content" link first in the DOM, hidden until focused.
-Grade: MAJOR. Sources: impeccable, ui-ux-pro-max, redesign-existing-projects, better-accessibility.
+Grade: MAJOR. Requirement: WCAG 2.4.1. Sources: impeccable, ui-ux-pro-max, redesign-existing-projects, better-accessibility.
 
 ### AC-34 Font size in px or font scaling disabled
 Symptom: The user's larger default font or system text size has no effect on the app.
@@ -3559,7 +3565,7 @@ Grade: MAJOR. Sources: better-accessibility.
 Symptom: Voice-control users say the text on the button and nothing activates.
 Detect: aria-label whose text does not contain, or does not start with, the visible label text, such as "Send" named "Submit message" (WCAG 2.5.3).
 Fix: Start the accessible name with the visible text, or let the visible text name the control.
-Grade: MAJOR. Sources: better-accessibility.
+Grade: MAJOR. Requirement: WCAG 2.5.3. Sources: better-accessibility.
 
 ### AC-47 Icon button named after its glyph
 Symptom: Screen readers hear "Trash", "Close icon", or "X" instead of the action.
@@ -3589,7 +3595,7 @@ Grade: MAJOR. Sources: better-accessibility.
 Symptom: Links read "Click here" or "here", so a screen reader's link list is useless.
 Detect: Anchor text that does not describe the destination out of context (WCAG 2.4.4).
 Fix: Give links standalone meaning, such as "View pricing plans".
-Grade: MAJOR. Sources: impeccable.
+Grade: MAJOR. Requirement: WCAG 2.4.4. Sources: impeccable.
 
 ### AC-52 aria-label on a generic element
 Symptom: The label is silently ignored by most screen readers.
@@ -3625,7 +3631,7 @@ Grade: MAJOR. Sources: better-typography.
 Symptom: Browsers and screen readers pick the wrong pronunciation, quotes, and hyphenation.
 Detect: html element or language-switching elements without lang (WCAG 3.1.1, 3.1.2).
 Fix: Set lang on the document and on elements whose language differs.
-Grade: MAJOR. Sources: better-typography.
+Grade: MAJOR. Requirement: WCAG 3.1.1. Sources: better-typography.
 
 ### AC-58 Mixed-direction text without dir or bdi
 Symptom: Names, numbers, URLs, or paragraphs beside RTL text render in the wrong order or alignment.

@@ -8,7 +8,13 @@ cites one entry of [`ANTIPATTERNS.md`](ANTIPATTERNS.md) by id.
 
 ## 1. Select categories from the diff
 
-Read the pinned diff and UI inventory first. Trace affected consumers of
+Read what the design authority declares before you review. Open the token
+block of the `Design system` file, or the token file that row names, once.
+Note the declared values by role, such as each text size, color pair, radius,
+and spacing step, and the names of the shared components. A row that reads
+`none` declares nothing.
+
+Read the pinned diff and UI inventory next. Trace affected consumers of
 changed shared primitives and tokens. Read only the catalog preface and
 category index, stopping before **Sources**. Select categories whose concerns
 the diff can affect, directly or through those consumers. An unavailable
@@ -50,9 +56,24 @@ Check the relevant entries and record which hunk or consumer makes each
 category applicable. Check each affected concern before marking a category
 `clear`.
 
-For each candidate, settle attribution before you grade it. Compare the base
-version with `git show <base-sha>:<path>` and, when the index has a base
-capture, with that capture. A defect already present at the base is
+Check each candidate against the authority before you attribute or grade it.
+Search the packet's authority pointers for a rule about the same element role.
+A written rule or a declared token value that requires the candidate's value
+for that role exempts the entry. Record it under **Suppressed** with the
+authority `path:line` and go no further with it. Silence exempts nothing, and
+neither does precedent. A value declared for one role does not exempt another
+role that uses it. A rule or token that this change adds or edits exempts
+nothing either. Read a changed authority file at the base SHA for exemptions,
+and name the new rule in **Verification**.
+
+An entry whose `Grade:` line carries `Requirement:` is never exempt. When the
+authority requires what such an entry forbids, keep the finding. Start its
+required correction with `authority-change` and the authority `path:line` to
+change.
+
+For each remaining candidate, settle attribution before you grade it. Compare
+the base version with `git show <base-sha>:<path>` and, when the index has a
+base capture, with that capture. A defect already present at the base is
 pre-existing. When attribution needs a base rendering the index lacks, say so
 in **Verification** and mark the row `attribution: unproven`.
 
@@ -63,13 +84,15 @@ defect, report that location under **Pre-existing** with the same catalog id
 and base evidence. Keep the introduced occurrence in **Findings**. Reuse the
 entry already read for the finding.
 
-Then check the packet's authority pointers. When the design authority requires
-the pattern, move the row to **Suppressed** with the authority `path:line`.
-
 Use the catalog grade as a default for a confirmed defect. A `Detect` cue
 starts an investigation. For `BLOCKING` or `MAJOR`, record a demonstrated user
 consequence or an applicable requirement that the change fails. Explain any
 grade change. Put supported craft issues without material impact in **Polish**.
+
+Write each correction in the project's own terms. Name the token or component
+the authority declares for that role. When the authority names none, name one
+that exists in the code and cite its `path:line`. When neither exists, use the
+entry's `Fix:`.
 
 Record each category from the index in **Coverage**. Use `not-applicable` for
 an unselected category, `clear` or `findings` for a completed check, and

@@ -50,9 +50,19 @@ pre-existing defects on the changed screens under **Pre-existing**, without a
 grade, so the developer can decide. A finding whose attribution the evidence
 cannot settle carries `attribution: unproven`, and the coordinator decides.
 
-Authority wins over the catalog. When a design authority in the packet requires
-the pattern, the row is not a finding. The antipattern worker records it under
-**Suppressed** with the authority `path:line`. A preference without repository
+Authority wins over the catalog, within limits. A written rule or a
+declared token value in the packet's authority that requires the pattern for
+the same element role exempts the entry. The antipattern worker records it
+under **Suppressed** with the authority `path:line`, before attribution or
+grading. Silence and precedent exempt nothing, and an exemption never loosens
+a grade or a threshold for any other value. A rule that the change under
+review adds or edits exempts nothing in the worker's report. The coordinator
+applies it only when the drift axis classifies that authority change
+`INTENTIONAL CHANGE`. A catalog entry whose `Grade:`
+line carries `Requirement:` restates an external standard and is never exempt.
+When the authority requires what such an entry forbids, the row stays a
+finding. Its required correction starts with `authority-change` and names the
+authority `path:line` to change. A preference without repository
 authority is a decision on the drift axis, and on the antipattern axis it is a
 finding only when a catalog entry names it.
 
@@ -81,6 +91,11 @@ Every drift decision carries a recommended answer and a proposed rule.
 
 Both are advice. Neither changes a classification or a verdict. A proposed
 rule is draft text for the authority, never a change to code.
+
+Every antipattern correction speaks the project's own terms. It names the
+token or component the authority declares for that role, or one that exists
+in the code with its `path:line`. Without either, it repeats the catalog
+entry's `Fix:`.
 
 ## Output
 
