@@ -66,6 +66,11 @@ role that uses it. A rule or token that this change adds or edits exempts
 nothing either. Read a changed authority file at the base SHA for exemptions,
 and name the new rule in **Verification**.
 
+When two written sources state different values for the same role and
+neither is generated from the other, neither exempts. Leave the candidate
+ungraded and mark the check `unverified: authority conflict` in **Coverage**
+with both `path:line`s.
+
 An entry whose `Grade:` line carries `Requirement:` is never exempt. When the
 authority requires what such an entry forbids, keep the finding. Start its
 required correction with `authority-change` and the authority `path:line` to

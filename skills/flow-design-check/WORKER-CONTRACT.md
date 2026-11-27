@@ -62,7 +62,17 @@ applies it only when the drift axis classifies that authority change
 line carries `Requirement:` restates an external standard and is never exempt.
 When the authority requires what such an entry forbids, the row stays a
 finding. Its required correction starts with `authority-change` and names the
-authority `path:line` to change. A preference without repository
+authority `path:line` to change.
+
+Two written sources can disagree about the same element role. When the
+authority says one file is generated from the other, the source wins. The
+stale output is `DRIFT`, and its required correction is to regenerate it.
+Otherwise neither source exempts or decides. The drift worker records one
+decision that names both `path:line`s and asks which source wins. The
+antipattern worker leaves the affected candidate ungraded and marks the check
+`unverified: authority conflict` with both `path:line`s.
+
+A preference without repository
 authority is a decision on the drift axis, and on the antipattern axis it is a
 finding only when a catalog entry names it.
 
@@ -91,6 +101,10 @@ Every drift decision carries a recommended answer and a proposed rule.
 
 Both are advice. Neither changes a classification or a verdict. A proposed
 rule is draft text for the authority, never a change to code.
+
+When the developer asks for a second opinion, the coordinator adds a second
+recommended answer to a conflict decision, attributed to the reviewer's
+harness. It sits beside the drift worker's answer and replaces nothing.
 
 Every antipattern correction speaks the project's own terms. It names the
 token or component the authority declares for that role, or one that exists
