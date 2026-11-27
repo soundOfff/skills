@@ -87,6 +87,12 @@ Audit the complete drift taxonomy:
   generated artifacts, or consumers no longer describe the same system.
 - **Scope drift.** A UI change has no trace to the issue's accepted concern.
 
+When two written sources disagree about the same rule or value, first check
+whether the authority says one is generated from the other. A stale generated
+file is `DRIFT`. The source wins, and the required correction is to regenerate
+the output. Two hand-written sources that disagree are one `NEEDS DECISION`
+row. Name both `path:line`s and ask which one wins.
+
 Use the captures to confirm pattern, state, and responsive drift that code
 alone cannot show, and cite the capture in the row. When the render is
 unavailable, say in **Verification** which rows rest on code alone.

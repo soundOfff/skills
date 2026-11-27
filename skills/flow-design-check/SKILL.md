@@ -5,12 +5,15 @@ description: Produce an optional two-axis design review for a pinned UI change, 
 
 # Flow design check
 
-Run `/flow-design-check [--base <ref>] [--focus <text>] [--url <address>]` as a
-read-only advisory review. One coordinator dispatches exactly two fresh workers.
-The drift worker judges whether the UI code still matches the repository's
-design authority. The antipattern worker checks the observable consequences
-of the change against the applicable catalog categories. The workers receive
-the same packet but cannot read each other's report or delegate further.
+Run `/flow-design-check [--base <ref>] [--focus <text>] [--url <address>]
+[--second-opinion]` as a read-only advisory review. One coordinator dispatches
+exactly two fresh workers. The drift worker judges whether the UI code still
+matches the repository's design authority. The antipattern worker checks the
+observable consequences of the change against the applicable catalog
+categories. The workers receive the same packet but cannot read each other's
+report or delegate further. With `--second-opinion`, a reviewer on the other
+harness's CLI also answers one question when two design sources conflict:
+which one should win.
 Behavioral correctness belongs to `flow-code-review`. General structure and
 maintainability belong to `flow-code-quality-review`.
 
@@ -167,10 +170,15 @@ authority `path:line`. A rule the target adds or edits counts as authority
 here only when the drift report classifies that change `INTENTIONAL CHANGE`.
 An entry that carries `Requirement:` is the exception. Its row stays a
 finding, and its required correction becomes `authority-change` with that
-authority `path:line`. When the antipattern
-report flags a pattern the authority is silent on, the row stands, and the
-drift axis may still carry a decision about whether the authority should
-settle it.
+authority `path:line`. When the antipattern report flags a pattern the
+authority is silent on, the row stands, and the drift axis may still carry a
+decision about whether the authority should settle it.
+
+Match every `unverified: authority conflict` row in the antipattern coverage
+to a drift decision that names the same two sources. A conflict the drift
+report does not carry is a missing decision. Add it to **Decisions** with both
+`path:line`s, the question of which source wins, and
+`no recommendation: no precedent`.
 
 Recompute the antipattern verdict from the retained findings and coverage
 using the worker contract.
@@ -182,7 +190,42 @@ against the new target.
 Completion: two contract-valid reports and the mechanical result describe one
 unchanged target, or the exact missing, malformed, or stale evidence is known.
 
-## 6. Return the gate
+## 6. Ask for a second opinion
+
+Without `--second-opinion`, record `not requested` and skip this step. When no
+decision names two conflicting design sources, record `no conflict` and skip
+it.
+
+For each conflict decision, dispatch one reviewer on the other harness's CLI,
+Codex when you are Claude and Claude when you are Codex. The flag is the
+developer's explicit request for that dispatch. Require
+[`SECOND-OPINION-WORKER.md`](SECOND-OPINION-WORKER.md) and give the reviewer
+only the conflict packet that file defines. Never give it a worker's report, a
+recommendation, or this conversation.
+
+Run the CLI read-only in the reviewed worktree and save its answer under
+`<.flow>/design-check/<diff-hash>/`:
+
+```text
+codex exec --ephemeral --sandbox read-only --cd <worktree> -o <answer file> "<brief>"
+claude -p "<brief>" > <answer file>
+```
+
+The brief names the worker file and the packet by absolute path. Check
+`git status` in the worktree after the reviewer returns.
+
+Add its answer to the decision's `Recommended answer` as
+`second opinion (<harness>)`, beside the drift worker's own answer. When the
+two disagree, show both and pick neither. When the CLI is missing, signed
+out, fails, or returns anything other than the worker's format, write
+`second opinion: unavailable: <reason>`. Do not fall back to a reviewer on your
+own model. A second opinion changes no classification, coverage row, or
+verdict.
+
+Completion: every conflict decision carries a second opinion or `unavailable`
+with its reason, or the step is recorded as `not requested` or `no conflict`.
+
+## 7. Return the gate
 
 Return:
 
@@ -191,6 +234,7 @@ Return:
 Target: <base-sha>..<head-sha> · <diff-hash>
 Render: <n> captures in <path> · <checkout sha> · port <n> | unavailable: <reason>
 Antipattern coverage: complete | partial | unavailable
+Second opinion: <harness> | unavailable: <reason> | not requested | no conflict
 
 ### Mechanical
 <command, exit status, violations, or not-configured>
